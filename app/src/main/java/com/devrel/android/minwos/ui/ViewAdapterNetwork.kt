@@ -49,14 +49,10 @@ class ViewAdapterNetwork : RecyclerView.Adapter<ViewAdapterNetwork.ViewHolder>()
             val cap = networkData.networkCapabilities
 
             binding.root.setBackgroundColor(
-                if (cap?.hasCapability(NET_CAPABILITY_NOT_RESTRICTED) == false) {
-                    context.getColor(R.color.colorDisabled)
+                if (networkData == networkStatus.defaultNetwork) {
+                    context.getColor(R.color.colorHighlight)
                 } else {
-                    if (networkData == networkStatus.defaultNetwork) {
-                        context.getColor(R.color.colorHighlight)
-                    } else {
-                        Color.TRANSPARENT
-                    }
+                    Color.TRANSPARENT
                 }
             )
             binding.title.text = networkData.name
@@ -69,6 +65,10 @@ class ViewAdapterNetwork : RecyclerView.Adapter<ViewAdapterNetwork.ViewHolder>()
             binding.meteredness.isChecked = cap?.hasCapability(NET_CAPABILITY_NOT_METERED) ?: false
             binding.tempMeteredness.isChecked =
                 cap?.hasCapability(NET_CAPABILITY_TEMPORARILY_NOT_METERED) ?: false
+            binding.downloadSpeed.text =
+                context.getString(R.string.download_speed, cap?.linkDownstreamBandwidthKbps)
+            binding.uploadSpeed.text =
+                context.getString(R.string.upload_speed, cap?.linkUpstreamBandwidthKbps)
         }
     }
 

@@ -39,7 +39,8 @@ class NetworkTracker(private val connectivityManager: ConnectivityManager) {
 
     fun registerCallbacks() {
         connectivityManager.registerNetworkCallback(
-            NetworkRequest.Builder().build(),
+            NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED).build(),
             NetworkCallback()
         )
         connectivityManager.registerDefaultNetworkCallback(DefaultNetworkCallback())
@@ -47,6 +48,10 @@ class NetworkTracker(private val connectivityManager: ConnectivityManager) {
 
     fun refresh() {
         for (network in connectivityManager.allNetworks) {
+            val capabilities = connectivityManager.getNetworkCapabilities(network);
+            if (capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED) != true) {
+                continue
+            }
             networkMap[network] = NetworkData(
                 network,
                 connectivityManager.getNetworkCapabilities(network),

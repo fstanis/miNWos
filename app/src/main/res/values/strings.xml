@@ -20,4 +20,6 @@
     <string name="cap_temp_not_metered">NET_CAPABILITY_TEMPORARILY_NOT_METERED</string>
     <string name="internet_access">Has internet access?</string>
     <string name="cellular_connection">Cellular connection?</string>
+    <string name="download_speed">Download: %1$ 8d kbps</string>
+    <string name="upload_speed">Upload: %1$ 10d kbps</string>
 </resources>
