@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright 2020 Google LLC
   ~
@@ -19,7 +20,7 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108"
-    android:tint="#3700B3">
+    android:tint="#2196F3">
   <group android:scaleX="2.61"
       android:scaleY="2.61"
       android:translateX="22.68"
