@@ -18,14 +18,8 @@ package com.devrel.android.minwos.ui;
 
 import android.annotation.SuppressLint
 import android.graphics.Color
-import android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET
-import android.net.NetworkCapabilities.NET_CAPABILITY_NOT_METERED
-import android.net.NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED
-import android.net.NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED
-import android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED
-import android.net.NetworkCapabilities.TRANSPORT_CELLULAR
+import android.net.NetworkCapabilities
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.devrel.android.minwos.R
@@ -46,30 +40,43 @@ class ViewAdapterNetwork : RecyclerView.Adapter<ViewAdapterNetwork.ViewHolder>()
 
         @SuppressLint("InlinedApi")
         fun setNetworkData(networkData: NetworkData) {
-            val cap = networkData.networkCapabilities
+            var name = networkData.name
+            var color = Color.TRANSPARENT
+            if (networkData == networkStatus.defaultNetwork) {
+                name += " (default)"
+                color = context.getColor(R.color.colorHighlight)
+            }
+            binding.root.setBackgroundColor(color)
+            binding.title.text = name
 
-            binding.root.setBackgroundColor(
-                if (networkData == networkStatus.defaultNetwork) {
-                    context.getColor(R.color.colorHighlight)
-                } else {
-                    Color.TRANSPARENT
-                }
-            )
-            binding.title.text = networkData.name
-            binding.cellular.isChecked = cap?.hasTransport(TRANSPORT_CELLULAR) ?: false
-            binding.hasInternet.isChecked = cap?.let {
-                it.hasCapability(NET_CAPABILITY_INTERNET) && it.hasCapability(
-                    NET_CAPABILITY_VALIDATED
-                )
-            } ?: false
-            binding.meteredness.isChecked = cap?.hasCapability(NET_CAPABILITY_NOT_METERED) ?: false
-            binding.tempMeteredness.isChecked =
-                cap?.hasCapability(NET_CAPABILITY_TEMPORARILY_NOT_METERED) ?: false
-            binding.downloadSpeed.text =
-                context.getString(R.string.download_speed, cap?.linkDownstreamBandwidthKbps)
-            binding.uploadSpeed.text =
-                context.getString(R.string.upload_speed, cap?.linkUpstreamBandwidthKbps)
+            val cap = networkData.networkCapabilities
+            binding.cellular.text =
+                formatBoolean(cap?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
+            binding.hasInternet.text = formatBoolean(cap?.let {
+                it.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                        && it.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+            })
+            binding.meteredness.text =
+                formatBoolean(cap?.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED))
+            binding.tempMeteredness.text =
+                formatBoolean(cap?.hasCapability(NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED))
+            binding.downloadBandwidth.text = formatBandwidth(cap?.linkDownstreamBandwidthKbps)
+            binding.uploadBandwidth.text = formatBandwidth(cap?.linkUpstreamBandwidthKbps)
         }
+
+        private fun formatBoolean(state: Boolean?): String =
+            when (state) {
+                null -> context.getString(R.string.state_unknown)
+                true -> context.getString(R.string.state_yes)
+                false -> context.getString(R.string.state_no)
+            }
+
+        private fun formatBandwidth(bandwidth: Int?): String =
+            when (bandwidth) {
+                null -> context.getString(R.string.state_unknown)
+                in 0..10000 -> context.getString(R.string.bandwidth_kbps, bandwidth)
+                else -> context.getString(R.string.bandwidth_mbps, bandwidth.toFloat() / 1000)
+            }
     }
 
     init {

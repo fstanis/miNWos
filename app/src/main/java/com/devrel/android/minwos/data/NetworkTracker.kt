@@ -52,9 +52,10 @@ class NetworkTracker(private val connectivityManager: ConnectivityManager) {
             if (capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED) != true) {
                 continue
             }
+            connectivityManager.requestBandwidthUpdate(network)
             networkMap[network] = NetworkData(
                 network,
-                connectivityManager.getNetworkCapabilities(network),
+                capabilities,
                 connectivityManager.getLinkProperties(network)
             )
         }

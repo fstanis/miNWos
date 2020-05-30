@@ -16,10 +16,37 @@
 
 <resources>
     <string name="app_name">miNWos</string>
-    <string name="cap_not_metered">NET_CAPABILITY_NOT_METERED</string>
-    <string name="cap_temp_not_metered">NET_CAPABILITY_TEMPORARILY_NOT_METERED</string>
-    <string name="internet_access">Has internet access?</string>
-    <string name="cellular_connection">Cellular connection?</string>
-    <string name="download_speed">Download: %1$ 8d kbps</string>
-    <string name="upload_speed">Upload: %1$ 10d kbps</string>
+    <string name="state_yes">\u2705 YES</string>
+    <string name="state_no">\u274C NO</string>
+    <string name="state_unknown">\u2754 UNKNOWN</string>
+    <string name="cap_not_metered">NOT_METERED</string>
+    <string name="cap_temp_not_metered">TEMPORARILY_NOT_METERED</string>
+    <string name="internet_access">Internet access</string>
+    <string name="cellular_connection">Cellular connection</string>
+    <string name="download_bandwidth">Download bandwidth</string>
+    <string name="upload_bandwidth">Upload bandwidth</string>
+    <string name="bandwidth_kbps">%1$d kbps</string>
+    <string name="bandwidth_mbps">%1$.2f Mbps</string>
+    <string name="help">Help</string>
+    <string name="button_ok">OK</string>
+    <string name="help_text"><![CDATA[
+        <p>
+          miNWos displays all the networks currently available to your device.
+        </p>
+        <p>
+          <font face="monospace">NOT_METERED</font> and
+          <font face="monospace">TEMPORARILY_NOT_METERED</font> are flags that indicate the
+          network\'s current capabilities. For more information, see
+          <a href="https://developer.android.com/reference/android/net/NetworkCapabilities">
+            <font face="monospace">NetworkCapabilities</font> in the Android documentation</a>.
+        </p>
+        <p>
+          The default (active) network is always at the top and
+          <span style="background:#FFFFD0">highlighted yellow</span>.
+        </p>
+        <p>
+          The list is updated automatically when available networks change. Swipe down to trigger a
+          manual update.
+        </p>
+    ]]></string>
 </resources>

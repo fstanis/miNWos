@@ -32,92 +32,117 @@
         android:paddingBottom="12dp"
         android:textSize="24sp"
         android:textStyle="bold"
+        android:maxLines="1"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="@tools:sample/lorem" />
 
-    <TextView
-        android:id="@+id/downloadSpeed"
+    <TableLayout
+        android:id="@+id/capabilities"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="14dp"
-        android:paddingTop="6dp"
-        android:paddingBottom="6dp"
-        android:textColor="@android:color/primary_text_light"
-        android:fontFamily="monospace"
-        android:maxLines="1"
+        android:layout_height="match_parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:shrinkColumns="0"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title"
-        tools:text="@tools:sample/lorem" />
+        app:layout_constraintTop_toBottomOf="@+id/title">
 
-    <TextView
-        android:id="@+id/uploadSpeed"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="14dp"
-        android:paddingTop="6dp"
-        android:paddingBottom="6dp"
-        android:textColor="@android:color/primary_text_light"
-        android:fontFamily="monospace"
-        android:maxLines="1"
-        app:layout_constraintTop_toBottomOf="@+id/downloadSpeed"
-        tools:text="@tools:sample/lorem" />
+        <TableRow android:background="#11000000">
 
-    <CheckBox
-        android:id="@+id/cellular"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:clickable="false"
-        android:maxLines="1"
-        android:text="@string/cellular_connection"
-        android:textColor="@android:color/primary_text_light"
-        android:fontFamily="monospace"
-        app:layout_constraintTop_toBottomOf="@+id/uploadSpeed" />
+            <TextView
+                android:padding="8dp"
+                android:textColor="@android:color/primary_text_light"
+                android:text="@string/download_bandwidth" />
 
-    <CheckBox
-        android:id="@+id/hasInternet"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:clickable="false"
-        android:maxLines="1"
-        android:text="@string/internet_access"
-        android:textColor="@android:color/primary_text_light"
-        android:fontFamily="monospace"
-        app:layout_constraintTop_toBottomOf="@+id/cellular" />
+            <TextView
+                android:id="@+id/downloadBandwidth"
+                android:padding="8dp"
+                android:textColor="@android:color/primary_text_light"
+                android:text="@string/state_unknown" />
+        </TableRow>
 
-    <CheckBox
-        android:id="@+id/meteredness"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:clickable="false"
-        android:maxLines="1"
-        android:text="@string/cap_not_metered"
-        android:textColor="@android:color/primary_text_light"
-        android:fontFamily="monospace"
-        app:layout_constraintTop_toBottomOf="@+id/hasInternet" />
+        <TableRow>
 
-    <CheckBox
-        android:id="@+id/tempMeteredness"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:clickable="false"
-        android:maxLines="1"
-        android:text="@string/cap_temp_not_metered"
-        android:textColor="@android:color/primary_text_light"
-        android:fontFamily="monospace"
-        app:layout_constraintTop_toBottomOf="@+id/meteredness" />
+            <TextView
+                android:padding="8dp"
+                android:textColor="@android:color/primary_text_light"
+                android:text="@string/upload_bandwidth" />
+
+            <TextView
+                android:id="@+id/uploadBandwidth"
+                android:padding="8dp"
+                android:textColor="@android:color/primary_text_light"
+                android:layout_gravity="center_vertical"
+                android:text="@string/state_unknown" />
+        </TableRow>
+
+        <TableRow android:background="#11000000">
+
+            <TextView
+                android:padding="8dp"
+                android:textColor="@android:color/primary_text_light"
+                android:text="@string/cellular_connection" />
+
+            <TextView
+                android:id="@+id/cellular"
+                android:padding="8dp"
+                android:textColor="@android:color/primary_text_light"
+                android:layout_gravity="center_vertical"
+                android:text="@string/state_unknown" />
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:padding="8dp"
+                android:textColor="@android:color/primary_text_light"
+                android:text="@string/internet_access" />
+
+            <TextView
+                android:id="@+id/hasInternet"
+                android:padding="8dp"
+                android:textColor="@android:color/primary_text_light"
+                android:layout_gravity="center_vertical"
+                android:text="@string/state_unknown" />
+        </TableRow>
+
+        <TableRow android:background="@color/table_row_odd">
+
+            <TextView
+                android:fontFamily="monospace"
+                android:padding="8dp"
+                android:textColor="@android:color/primary_text_light"
+                android:text="@string/cap_not_metered" />
+
+            <TextView
+                android:id="@+id/meteredness"
+                android:padding="8dp"
+                android:textColor="@android:color/primary_text_light"
+                android:layout_gravity="center_vertical"
+                android:text="@string/state_unknown" />
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:fontFamily="monospace"
+                android:padding="8dp"
+                android:textColor="@android:color/primary_text_light"
+                android:text="@string/cap_temp_not_metered" />
+
+            <TextView
+                android:id="@+id/tempMeteredness"
+                android:padding="8dp"
+                android:textColor="@android:color/primary_text_light"
+                android:layout_gravity="center_vertical"
+                android:text="@string/state_unknown" />
+        </TableRow>
+    </TableLayout>
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="2dp"
         android:layout_marginTop="8dp"
         android:background="?android:attr/listDivider"
-        app:layout_constraintTop_toBottomOf="@+id/tempMeteredness" />
+        app:layout_constraintTop_toBottomOf="@+id/capabilities" />
 </androidx.constraintlayout.widget.ConstraintLayout>
