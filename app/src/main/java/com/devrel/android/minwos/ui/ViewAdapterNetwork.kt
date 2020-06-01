@@ -16,7 +16,6 @@
 
 package com.devrel.android.minwos.ui;
 
-import android.annotation.SuppressLint
 import android.graphics.Color
 import android.net.NetworkCapabilities
 import android.view.LayoutInflater
@@ -37,15 +36,12 @@ class ViewAdapterNetwork : RecyclerView.Adapter<ViewAdapterNetwork.ViewHolder>()
     inner class ViewHolder(private val binding: ItemNetworkBinding) :
         RecyclerView.ViewHolder(binding.root) {
         private val context = binding.root.context
+        private val colorHighlight = context.getColor(R.color.highlight)
 
-        @SuppressLint("InlinedApi")
         fun setNetworkData(networkData: NetworkData) {
-            var name = networkData.name
-            var color = Color.TRANSPARENT
-            if (networkData == networkStatus.defaultNetwork) {
-                name += " (default)"
-                color = context.getColor(R.color.colorHighlight)
-            }
+            val isDefault = networkData == networkStatus.defaultNetwork
+            val name = if (isDefault) "${networkData.name} (default)" else networkData.name
+            val color = if (isDefault) colorHighlight else Color.TRANSPARENT
             binding.root.setBackgroundColor(color)
             binding.title.text = name
 

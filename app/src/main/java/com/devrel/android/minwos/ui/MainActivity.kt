@@ -19,20 +19,14 @@ package com.devrel.android.minwos.ui
 import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Bundle
-import android.text.method.LinkMovementMethod
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.text.HtmlCompat
-import androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.devrel.android.minwos.R
 import com.devrel.android.minwos.data.NetworkTracker
 import com.devrel.android.minwos.databinding.ActivityMainBinding
-
 
 class MainActivity : AppCompatActivity() {
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
@@ -57,7 +51,6 @@ class MainActivity : AppCompatActivity() {
             binding.swipeRefreshLayout.isRefreshing = false
         })
         networkTracker.registerCallbacks();
-        networkTracker.refresh()
         binding.swipeRefreshLayout.setOnRefreshListener {
             networkTracker.refresh()
         }

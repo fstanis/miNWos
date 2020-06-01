@@ -9,13 +9,15 @@ The latest version is [available in the Google Play Store](https://play.google.c
 
 ## Usage
 
-When launched, miNWos displays all the networks currently available to your device.
+When launched, miNWos displays all the networks currently available to your
+device.
 
 `NOT_METERED` and `TEMPORARILY_NOT_METERED` are flags that indicate the
 network's current capabilities. For more information, see
 [`NetworkCapabilities` in the Android documentation](https://developer.android.com/reference/android/net/NetworkCapabilities).
 
-The default (active) network is always at the top and highlighted yellow.
+The default (active) network is always at the top and highlighted yellow. On
+some devices, only the default network can be displayed.
 
 The list is updated automatically when available networks change. Swipe down to
 trigger a manual update.

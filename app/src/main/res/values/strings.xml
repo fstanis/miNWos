@@ -27,8 +27,9 @@
     <string name="upload_bandwidth">Upload bandwidth</string>
     <string name="bandwidth_kbps">%1$d kbps</string>
     <string name="bandwidth_mbps">%1$.2f Mbps</string>
-    <string name="help">Help</string>
     <string name="button_ok">OK</string>
+    <string name="help">Help</string>
+    <string name="help_title">miNWos version %1$s</string>
     <string name="help_text"><![CDATA[
         <p>
           miNWos displays all the networks currently available to your device.
@@ -42,7 +43,8 @@
         </p>
         <p>
           The default (active) network is always at the top and
-          <span style="background:#FFFFD0">highlighted yellow</span>.
+          <span style="background:#FFFFD0">highlighted yellow</span>. On some devices, only the
+          default network can be displayed.
         </p>
         <p>
           The list is updated automatically when available networks change. Swipe down to trigger a

@@ -40,7 +40,10 @@ class NetworkTracker(private val connectivityManager: ConnectivityManager) {
     fun registerCallbacks() {
         connectivityManager.registerNetworkCallback(
             NetworkRequest.Builder()
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED).build(),
+                // these capability filters are added by default
+                .removeCapability(NetworkCapabilities.NET_CAPABILITY_TRUSTED)
+                .removeCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
+                .build(),
             NetworkCallback()
         )
         connectivityManager.registerDefaultNetworkCallback(DefaultNetworkCallback())
@@ -49,7 +52,8 @@ class NetworkTracker(private val connectivityManager: ConnectivityManager) {
     fun refresh() {
         for (network in connectivityManager.allNetworks) {
             val capabilities = connectivityManager.getNetworkCapabilities(network);
-            if (capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED) != true) {
+            // always skip restricted networks
+            if (capabilities == null || !capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED)) {
                 continue
             }
             connectivityManager.requestBandwidthUpdate(network)
