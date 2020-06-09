@@ -15,7 +15,14 @@
   -->
 
 <resources>
-    <color name="primary">#2196F3</color>
-    <color name="highlight">#FFFFE0</color>
-    <color name="table_row_odd">#11000000</color>
+    <!-- PADDING -->
+    <dimen name="default_margin">8dp</dimen>
+    <dimen name="default_padding">8dp</dimen>
+    <dimen name="title_bottom_padding">12dp</dimen>
+
+    <!-- SIZES -->
+    <dimen name="divider_height">2dp</dimen>
+
+    <!-- TEXT -->
+    <dimen name="title_text_size">24sp</dimen>
 </resources>

@@ -17,7 +17,6 @@
 package com.devrel.android.minwos.ui;
 
 import android.graphics.Color
-import android.net.NetworkCapabilities
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -26,7 +25,7 @@ import com.devrel.android.minwos.data.NetworkData
 import com.devrel.android.minwos.data.NetworkStatus
 import com.devrel.android.minwos.databinding.ItemNetworkBinding
 
-class ViewAdapterNetwork : RecyclerView.Adapter<ViewAdapterNetwork.ViewHolder>() {
+class NetworkStatusAdapter : RecyclerView.Adapter<NetworkStatusAdapter.ViewHolder>() {
     var networkStatus = NetworkStatus(null, listOf())
         set(value) {
             field = value
@@ -38,41 +37,25 @@ class ViewAdapterNetwork : RecyclerView.Adapter<ViewAdapterNetwork.ViewHolder>()
         private val context = binding.root.context
         private val colorHighlight = context.getColor(R.color.highlight)
 
-        fun setNetworkData(networkData: NetworkData) {
+        fun setNetworkData(networkData: NetworkData) = with(context) {
             val isDefault = networkData == networkStatus.defaultNetwork
-            val name = if (isDefault) "${networkData.name} (default)" else networkData.name
-            val color = if (isDefault) colorHighlight else Color.TRANSPARENT
-            binding.root.setBackgroundColor(color)
-            binding.title.text = name
-
-            val cap = networkData.networkCapabilities
-            binding.cellular.text =
-                formatBoolean(cap?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
-            binding.hasInternet.text = formatBoolean(cap?.let {
-                it.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                        && it.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-            })
-            binding.meteredness.text =
-                formatBoolean(cap?.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED))
-            binding.tempMeteredness.text =
-                formatBoolean(cap?.hasCapability(NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED))
-            binding.downloadBandwidth.text = formatBandwidth(cap?.linkDownstreamBandwidthKbps)
-            binding.uploadBandwidth.text = formatBandwidth(cap?.linkUpstreamBandwidthKbps)
+            binding.title.text = getNetworkName(networkData.name, isDefault)
+            binding.root.setBackgroundColor(getColor(isDefault))
+            binding.cellular.text = formatBoolean(networkData.isCellular)
+            binding.hasInternet.text = formatBoolean(networkData.hasInternet)
+            binding.meteredness.text = formatBoolean(networkData.isNotMetered)
+            binding.tempMeteredness.text = formatBoolean(networkData.isTemporarilyNotMetered)
+            networkData.networkCapabilities.let {
+                binding.downloadBandwidth.text = formatBandwidth(it?.linkDownstreamBandwidthKbps)
+                binding.uploadBandwidth.text = formatBandwidth(it?.linkUpstreamBandwidthKbps)
+            }
         }
 
-        private fun formatBoolean(state: Boolean?): String =
-            when (state) {
-                null -> context.getString(R.string.state_unknown)
-                true -> context.getString(R.string.state_yes)
-                false -> context.getString(R.string.state_no)
-            }
+        private fun getNetworkName(name: String, isDefault: Boolean) =
+            if (isDefault) context.getString(R.string.default_network, name) else name
 
-        private fun formatBandwidth(bandwidth: Int?): String =
-            when (bandwidth) {
-                null -> context.getString(R.string.state_unknown)
-                in 0..10000 -> context.getString(R.string.bandwidth_kbps, bandwidth)
-                else -> context.getString(R.string.bandwidth_mbps, bandwidth.toFloat() / 1000)
-            }
+        private fun getColor(isDefault: Boolean) =
+            if (isDefault) colorHighlight else Color.TRANSPARENT
     }
 
     init {

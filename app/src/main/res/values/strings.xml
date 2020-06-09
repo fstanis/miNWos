@@ -19,6 +19,7 @@
     <string name="state_yes">\u2705 YES</string>
     <string name="state_no">\u274C NO</string>
     <string name="state_unknown">\u2754 UNKNOWN</string>
+    <string name="default_network">%1$s (default)</string>
     <string name="cap_not_metered">NOT_METERED</string>
     <string name="cap_temp_not_metered">TEMPORARILY_NOT_METERED</string>
     <string name="internet_access">Internet access</string>

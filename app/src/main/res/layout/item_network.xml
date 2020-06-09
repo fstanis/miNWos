@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2020 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,94 +14,63 @@
   ~ limitations under the License.
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/highlight"
-    android:paddingTop="8dp">
+    android:orientation="vertical"
+    android:paddingTop="@dimen/default_padding">
 
     <TextView
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:paddingBottom="12dp"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:maxLines="1"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginHorizontal="@dimen/default_margin"
+        android:theme="@style/TitleTextView"
         tools:text="@tools:sample/lorem" />
 
     <TableLayout
         android:id="@+id/capabilities"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginHorizontal="@dimen/default_margin"
         android:shrinkColumns="0"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title">
+        android:theme="@style/AppTheme.TableRow">
 
         <TableRow android:background="#11000000">
 
-            <TextView
-                android:padding="8dp"
-                android:textColor="@android:color/primary_text_light"
-                android:text="@string/download_bandwidth" />
+            <TextView android:text="@string/download_bandwidth" />
 
             <TextView
                 android:id="@+id/downloadBandwidth"
-                android:padding="8dp"
-                android:textColor="@android:color/primary_text_light"
                 android:text="@string/state_unknown" />
         </TableRow>
 
         <TableRow>
 
-            <TextView
-                android:padding="8dp"
-                android:textColor="@android:color/primary_text_light"
-                android:text="@string/upload_bandwidth" />
+            <TextView android:text="@string/upload_bandwidth" />
 
             <TextView
                 android:id="@+id/uploadBandwidth"
-                android:padding="8dp"
-                android:textColor="@android:color/primary_text_light"
-                android:layout_gravity="center_vertical"
                 android:text="@string/state_unknown" />
         </TableRow>
 
         <TableRow android:background="#11000000">
 
-            <TextView
-                android:padding="8dp"
-                android:textColor="@android:color/primary_text_light"
-                android:text="@string/cellular_connection" />
+            <TextView android:text="@string/cellular_connection" />
 
             <TextView
                 android:id="@+id/cellular"
-                android:padding="8dp"
-                android:textColor="@android:color/primary_text_light"
-                android:layout_gravity="center_vertical"
                 android:text="@string/state_unknown" />
         </TableRow>
 
         <TableRow>
 
-            <TextView
-                android:padding="8dp"
-                android:textColor="@android:color/primary_text_light"
-                android:text="@string/internet_access" />
+            <TextView android:text="@string/internet_access" />
 
             <TextView
                 android:id="@+id/hasInternet"
-                android:padding="8dp"
-                android:textColor="@android:color/primary_text_light"
-                android:layout_gravity="center_vertical"
                 android:text="@string/state_unknown" />
         </TableRow>
 
@@ -110,15 +78,10 @@
 
             <TextView
                 android:fontFamily="monospace"
-                android:padding="8dp"
-                android:textColor="@android:color/primary_text_light"
                 android:text="@string/cap_not_metered" />
 
             <TextView
                 android:id="@+id/meteredness"
-                android:padding="8dp"
-                android:textColor="@android:color/primary_text_light"
-                android:layout_gravity="center_vertical"
                 android:text="@string/state_unknown" />
         </TableRow>
 
@@ -126,23 +89,17 @@
 
             <TextView
                 android:fontFamily="monospace"
-                android:padding="8dp"
-                android:textColor="@android:color/primary_text_light"
                 android:text="@string/cap_temp_not_metered" />
 
             <TextView
                 android:id="@+id/tempMeteredness"
-                android:padding="8dp"
-                android:textColor="@android:color/primary_text_light"
-                android:layout_gravity="center_vertical"
                 android:text="@string/state_unknown" />
         </TableRow>
     </TableLayout>
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_marginTop="8dp"
-        android:background="?android:attr/listDivider"
-        app:layout_constraintTop_toBottomOf="@+id/capabilities" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_height="@dimen/divider_height"
+        android:layout_marginTop="@dimen/default_margin"
+        android:background="?android:attr/listDivider" />
+</LinearLayout>

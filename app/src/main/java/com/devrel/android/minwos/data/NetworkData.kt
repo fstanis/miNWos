@@ -24,14 +24,26 @@ data class NetworkData(
     private val network: Network,
     val networkCapabilities: NetworkCapabilities? = null,
     val linkProperties: LinkProperties? = null,
-    val blocked: Boolean = false
+    val isBlocked: Boolean = false
 ) : Comparable<NetworkData> {
-    val id = network.hashCode()
+    val id = hashCode()
     val name = linkProperties?.interfaceName ?: "<unknown>"
-
-    fun withNetworkCapabilities(networkCapabilities: NetworkCapabilities) = NetworkData(network, networkCapabilities, linkProperties, blocked)
-    fun withLinkProperties(linkProperties: LinkProperties) = NetworkData(network, networkCapabilities, linkProperties, blocked)
-    fun withBlocked(blocked: Boolean) = NetworkData(network, networkCapabilities, linkProperties, blocked)
+    val isCellular = networkCapabilities?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
+    val hasInternet = networkCapabilities?.let {
+        it.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                && it.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+    }
+    val isNotMetered =
+        networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+    val isTemporarilyNotMetered =
+        networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED)
 
     override fun compareTo(other: NetworkData): Int = name.compareTo(other.name)
+    override fun equals(other: Any?): Boolean =
+        when (other) {
+            is NetworkData -> other.network == network
+            else -> super.equals(other)
+        }
+
+    override fun hashCode() = network.hashCode()
 }

@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         binding.swipeRefreshLayout.isRefreshing = true
 
         val viewManager = LinearLayoutManager(this)
-        val viewAdapter = ViewAdapterNetwork()
+        val viewAdapter = NetworkStatusAdapter()
         with(binding.networksRecyclerView) {
             setHasFixedSize(true)
             layoutManager = viewManager

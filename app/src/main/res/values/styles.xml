@@ -15,8 +15,27 @@
   -->
 
 <resources>
+
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorAccent">@color/primary</item>
     </style>
+
+    <style name="TitleTextView">
+        <item name="android:maxLines">1</item>
+        <item name="android:paddingBottom">@dimen/title_bottom_padding</item>
+        <item name="android:textSize">@dimen/title_text_size</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TableTextView">
+        <item name="android:padding">@dimen/default_padding</item>
+        <item name="android:textColor">@android:color/primary_text_light</item>
+        <item name="android:layout_gravity">center_vertical</item>
+    </style>
+
+    <style name="AppTheme.TableRow">
+        <item name="android:textViewStyle">@style/TableTextView</item>
+    </style>
+
 </resources>
