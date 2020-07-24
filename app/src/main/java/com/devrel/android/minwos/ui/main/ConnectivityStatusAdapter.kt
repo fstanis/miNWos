@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package com.devrel.android.minwos.ui;
+package com.devrel.android.minwos.ui.main
 
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.devrel.android.minwos.R
-import com.devrel.android.minwos.data.NetworkData
-import com.devrel.android.minwos.data.NetworkStatus
+import com.devrel.android.minwos.data.ConnectivityStatus
+import com.devrel.android.minwos.data.ConnectivityStatus.NetworkData
 import com.devrel.android.minwos.databinding.ItemNetworkBinding
+import com.devrel.android.minwos.ui.util.formatBandwidth
+import com.devrel.android.minwos.ui.util.formatBoolean
 
-class NetworkStatusAdapter : RecyclerView.Adapter<NetworkStatusAdapter.ViewHolder>() {
-    var networkStatus = NetworkStatus(null, listOf())
+class ConnectivityStatusAdapter : RecyclerView.Adapter<ConnectivityStatusAdapter.ViewHolder>() {
+    var connectivityStatus = ConnectivityStatus(null, listOf())
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -38,7 +40,7 @@ class NetworkStatusAdapter : RecyclerView.Adapter<NetworkStatusAdapter.ViewHolde
         private val colorHighlight = context.getColor(R.color.highlight)
 
         fun setNetworkData(networkData: NetworkData) = with(context) {
-            val isDefault = networkData == networkStatus.defaultNetwork
+            val isDefault = networkData == connectivityStatus.defaultNetwork
             binding.title.text = getNetworkName(networkData.name, isDefault)
             binding.root.setBackgroundColor(getColor(isDefault))
             binding.cellular.text = formatBoolean(networkData.isCellular)
@@ -52,7 +54,7 @@ class NetworkStatusAdapter : RecyclerView.Adapter<NetworkStatusAdapter.ViewHolde
         }
 
         private fun getNetworkName(name: String, isDefault: Boolean) =
-            if (isDefault) context.getString(R.string.default_network, name) else name
+            if (isDefault) context.getString(R.string.default_network_template, name) else name
 
         private fun getColor(isDefault: Boolean) =
             if (isDefault) colorHighlight else Color.TRANSPARENT
@@ -62,15 +64,12 @@ class NetworkStatusAdapter : RecyclerView.Adapter<NetworkStatusAdapter.ViewHolde
         setHasStableIds(true)
     }
 
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
-    ): ViewHolder =
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
         ViewHolder(ItemNetworkBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) =
-        holder.setNetworkData(networkStatus.networks[position])
+        holder.setNetworkData(connectivityStatus.networks[position])
 
-    override fun getItemCount(): Int = networkStatus.networks.size
-    override fun getItemId(position: Int): Long = networkStatus.networks[position].id.toLong()
+    override fun getItemCount(): Int = connectivityStatus.networks.size
+    override fun getItemId(position: Int): Long = connectivityStatus.networks[position].id.toLong()
 }

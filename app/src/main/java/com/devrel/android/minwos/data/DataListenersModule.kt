@@ -14,29 +14,19 @@
  * limitations under the License.
  */
 
-buildscript {
-    ext{
-        kotlin_version = '1.3.72'
-        hilt_version = '2.28-alpha'
-    }
-    repositories {
-        google()
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.1'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
-    }
-}
+package com.devrel.android.minwos.data
 
-allprojects {
-    repositories {
-        google()
-        jcenter()
-    }
-}
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ApplicationComponent
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+@Module
+@InstallIn(ApplicationComponent::class)
+abstract class DataListenersModule {
+    @Binds
+    abstract fun bindConnectivityStatusListener(impl: ConnectivityStatusListenerImpl): ConnectivityStatusListener
+
+    @Binds
+    abstract fun bindTelephonyStatusListener(impl: TelephonyStatusListenerImpl): TelephonyStatusListener
 }

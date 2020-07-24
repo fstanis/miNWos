@@ -14,9 +14,19 @@
  * limitations under the License.
  */
 
-package com.devrel.android.minwos.data
+package com.devrel.android.minwos.ui.util
 
-data class NetworkStatus(val defaultNetwork: NetworkData?, val allNetworks: List<NetworkData>) {
-    // ensure default network is first, if set
-    val networks = defaultNetwork?.let { listOf(it).union(allNetworks).toList() } ?: allNetworks
+import android.content.Context
+import com.devrel.android.minwos.R
+
+fun Context.formatBoolean(boolean: Boolean?) = when (boolean) {
+    null -> getString(R.string.state_unknown)
+    true -> getString(R.string.state_yes)
+    false -> getString(R.string.state_no)
+}
+
+fun Context.formatBandwidth(bandwidthKbps: Int?) = when (bandwidthKbps) {
+    null -> getString(R.string.state_unknown)
+    in 0..999 -> getString(R.string.bandwidth_kbps, bandwidthKbps)
+    else -> getString(R.string.bandwidth_mbps, bandwidthKbps.toFloat() / 1000)
 }

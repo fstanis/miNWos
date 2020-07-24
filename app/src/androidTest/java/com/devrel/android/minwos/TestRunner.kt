@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package com.devrel.android.minwos.ui
+package com.devrel.android.minwos
 
+import android.app.Application
 import android.content.Context
-import com.devrel.android.minwos.R
+import androidx.test.runner.AndroidJUnitRunner
+import dagger.hilt.android.testing.HiltTestApplication
 
-fun Context.formatBoolean(boolean: Boolean?) =
-    when (boolean) {
-        null -> getString(R.string.state_unknown)
-        true -> getString(R.string.state_yes)
-        false -> getString(R.string.state_no)
+class TestRunner : AndroidJUnitRunner() {
+    override fun newApplication(cl: ClassLoader?, name: String?, context: Context?): Application {
+        return super.newApplication(cl, HiltTestApplication::class.java.name, context)
     }
-
-fun Context.formatBandwidth(bandwidthKbps: Int?) =
-    when (bandwidthKbps) {
-        null -> getString(R.string.state_unknown)
-        in 0..999 -> getString(R.string.bandwidth_kbps, bandwidthKbps)
-        else -> getString(R.string.bandwidth_mbps, bandwidthKbps.toFloat() / 1000)
-    }
+}

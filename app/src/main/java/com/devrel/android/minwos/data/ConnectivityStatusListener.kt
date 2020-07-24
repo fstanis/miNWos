@@ -21,41 +21,51 @@ import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import com.devrel.android.minwos.data.ConnectivityStatus.NetworkData
+import javax.inject.Inject
 
-class NetworkTracker(private val connectivityManager: ConnectivityManager) {
+interface ConnectivityStatusListener : DefaultLifecycleObserver {
+    fun startListening()
+    fun stopListening()
+    fun refresh()
+    fun setCallback(callback: (ConnectivityStatus) -> Unit)
+    fun clearCallback()
+
+    override fun onStart(owner: LifecycleOwner) = startListening()
+    override fun onStop(owner: LifecycleOwner) = stopListening()
+}
+
+class ConnectivityStatusListenerImpl @Inject constructor(
+    private val connectivityManager: ConnectivityManager
+) : ConnectivityStatusListener {
     private var defaultNetwork: Network? = null
     private val networkMap = mutableMapOf<Network, NetworkData>()
 
-    val networks
-        get() = NetworkStatus(
-            networkMap[defaultNetwork],
-            networkMap.values.toList()
-        )
-
-    private val networksMutableLiveData = MutableLiveData<NetworkStatus>()
-    val networksLiveData: LiveData<NetworkStatus> get() = networksMutableLiveData
+    private val networks
+        get() = ConnectivityStatus(networkMap[defaultNetwork], networkMap.values.toList())
 
     private var callbacksRegistered = false
+    private var callback: ((ConnectivityStatus) -> Unit)? = null
 
-    fun registerCallbacks() {
+    override fun startListening() {
         if (callbacksRegistered) {
             return
         }
+        reset()
         connectivityManager.registerNetworkCallback(
             NetworkRequest.Builder()
                 // these capability filters are added by default
                 .removeCapability(NetworkCapabilities.NET_CAPABILITY_TRUSTED)
-                .removeCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
-                .build(),
+                .removeCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN).build(),
             networkCallback
         )
         connectivityManager.registerDefaultNetworkCallback(defaultNetworkCallback)
         callbacksRegistered = true
     }
 
-    fun unregisterCallbacks() {
+    override fun stopListening() {
         if (!callbacksRegistered) {
             return
         }
@@ -64,41 +74,58 @@ class NetworkTracker(private val connectivityManager: ConnectivityManager) {
         callbacksRegistered = false
     }
 
-    fun refresh() {
+    private fun reset() {
+        defaultNetwork = null
+        networkMap.clear()
+    }
+
+    override fun refresh() {
+        reset()
         for (network in connectivityManager.allNetworks) {
-            val capabilities = connectivityManager.getNetworkCapabilities(network);
+            connectivityManager.requestBandwidthUpdate(network)
+            val capabilities = connectivityManager.getNetworkCapabilities(network) ?: continue
             // always skip restricted networks
-            if (capabilities == null || !capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED)) {
+            if (!capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED)) {
                 continue
             }
-            connectivityManager.requestBandwidthUpdate(network)
             networkMap[network] = NetworkData(
                 network,
-                capabilities,
-                connectivityManager.getLinkProperties(network)
+                networkCapabilities = capabilities,
+                linkProperties = connectivityManager.getLinkProperties(network)
             )
         }
+        defaultNetwork = connectivityManager.activeNetwork
         update()
     }
 
+    override fun setCallback(callback: (ConnectivityStatus) -> Unit) {
+        this.callback = callback
+    }
+
+    override fun clearCallback() {
+        callback = null
+    }
+
     private fun updateNetworkCapabilities(
-        network: Network,
-        networkCapabilities: NetworkCapabilities
+        network: Network, networkCapabilities: NetworkCapabilities
     ) {
-        networkMap[network] = networkMap[network]?.copy(networkCapabilities = networkCapabilities)
-            ?: NetworkData(network, networkCapabilities = networkCapabilities)
+        networkMap[network] =
+            networkMap[network]?.copy(networkCapabilities = networkCapabilities)
+                ?: NetworkData(network, networkCapabilities = networkCapabilities)
         update()
     }
 
     private fun updateLinkProperties(network: Network, linkProperties: LinkProperties) {
-        networkMap[network] = networkMap[network]?.copy(linkProperties = linkProperties)
-            ?: NetworkData(network, linkProperties = linkProperties)
+        networkMap[network] =
+            networkMap[network]?.copy(linkProperties = linkProperties)
+                ?: NetworkData(network, linkProperties = linkProperties)
         update()
     }
 
     private fun updateBlockedStatus(network: Network, blocked: Boolean) {
-        networkMap[network] = networkMap[network]?.copy(isBlocked = blocked)
-            ?: NetworkData(network, isBlocked = blocked)
+        networkMap[network] =
+            networkMap[network]?.copy(isBlocked = blocked)
+                ?: NetworkData(network, isBlocked = blocked)
         update()
     }
 
@@ -118,14 +145,15 @@ class NetworkTracker(private val connectivityManager: ConnectivityManager) {
     }
 
     private fun update() {
-        networksMutableLiveData.postValue(networks)
+        callback?.invoke(networks)
     }
 
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onCapabilitiesChanged(
             network: Network,
             networkCapabilities: NetworkCapabilities
-        ) = updateNetworkCapabilities(network, networkCapabilities)
+        ) =
+            updateNetworkCapabilities(network, networkCapabilities)
 
         override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) =
             updateLinkProperties(network, linkProperties)

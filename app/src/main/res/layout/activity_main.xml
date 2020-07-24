@@ -15,28 +15,104 @@
   ~ limitations under the License.
   -->
 
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/swipeRefreshLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <LinearLayout
             android:id="@+id/globalInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:background="@color/global"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/default_padding">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/networksRecyclerView"
+            <TextView
+                android:id="@+id/title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:listitem="@layout/item_network" />
+                android:layout_marginHorizontal="@dimen/default_margin"
+                android:text="@string/phone_state"
+                android:theme="@style/TitleTextView" />
+
+            <TableLayout
+                android:id="@+id/networkInfo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginHorizontal="@dimen/default_margin"
+                android:shrinkColumns="0,1"
+                android:theme="@style/AppTheme.TableRow">
+
+                <TableRow android:background="#11000000">
+
+                    <TextView android:text="@string/network_type" />
+
+                    <TextView
+                        android:id="@+id/networkType"
+                        android:text="@string/state_unknown" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView android:text="@string/network_state" />
+
+                    <TextView
+                        android:id="@+id/networkState"
+                        android:text="@string/state_unknown" />
+                </TableRow>
+
+                <TableRow android:background="#11000000">
+
+                    <TextView android:text="@string/nr_state" />
+
+                    <TextView
+                        android:id="@+id/nrState"
+                        android:text="@string/state_unknown" />
+                </TableRow>
+
+                <TableRow
+                    android:id="@+id/overrideNetworkTypeRow"
+                    android:visibility="gone">
+
+                    <TextView android:text="@string/network_type_override" />
+
+                    <TextView
+                        android:id="@+id/overrideNetworkType"
+                        android:text="@string/state_unknown" />
+                </TableRow>
+            </TableLayout>
+
+            <TextView
+                android:id="@+id/permissionsWarning"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/default_margin"
+                android:gravity="center_horizontal"
+                android:paddingVertical="@dimen/default_padding"
+                android:text="@string/permissions_warning"
+                android:textColor="@android:color/primary_text_light"
+                android:visibility="gone" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="8dp"
+                android:background="?android:attr/listDivider" />
 
         </LinearLayout>
-    </ScrollView>
-</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/networksRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            tools:listitem="@layout/item_network" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

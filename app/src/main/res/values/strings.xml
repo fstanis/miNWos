@@ -16,10 +16,11 @@
 
 <resources>
     <string name="app_name">miNWos</string>
+    <string name="default_network">Default network</string>
     <string name="state_yes">\u2705 YES</string>
     <string name="state_no">\u274C NO</string>
     <string name="state_unknown">\u2754 UNKNOWN</string>
-    <string name="default_network">%1$s (default)</string>
+    <string name="default_network_template">%1$s (default)</string>
     <string name="cap_not_metered">NOT_METERED</string>
     <string name="cap_temp_not_metered">TEMPORARILY_NOT_METERED</string>
     <string name="internet_access">Internet access</string>
@@ -28,12 +29,20 @@
     <string name="upload_bandwidth">Upload bandwidth</string>
     <string name="bandwidth_kbps">%1$d kbps</string>
     <string name="bandwidth_mbps">%1$.2f Mbps</string>
+    <string name="permissions_warning">\u26A0\uFE0F Missing required permissions (tap here to retry)</string>
     <string name="button_ok">OK</string>
     <string name="help">Help</string>
+    <string name="refresh">Refresh</string>
     <string name="help_title">miNWos version %1$s</string>
     <string name="help_text"><![CDATA[
         <p>
-          miNWos displays all the networks currently available to your device.
+          miNWos displays the networks and cellular state of your device.
+        </p>
+        <p>
+          At the top is the <span style="background:#F6E6FF">phone state</span> which contains data
+          about your cellular network and is global and singular. Below it is a list of all the
+          networks currently available to your device, which may include Wi-Fi, cellular data and
+          others.
         </p>
         <p>
           <font face="monospace">NOT_METERED</font> and
@@ -48,8 +57,18 @@
           default network can be displayed.
         </p>
         <p>
-          The list is updated automatically when available networks change. Swipe down to trigger a
-          manual update.
+          The list is updated automatically when available networks change. Press the &#128260;
+          button to trigger a manual update.
+        </p>
+        <p>
+          Use <i>Toggle notification</i> to show or hide a persistent notification that displays
+          information about the default (active) network even when the app is not in the foreground.
         </p>
     ]]></string>
+    <string name="phone_state">Phone state (global)</string>
+    <string name="network_type_override">Network type override</string>
+    <string name="network_type">Network type</string>
+    <string name="network_state">Network state</string>
+    <string name="nr_state">NR state</string>
+    <string name="toggle_notification">Toggle notification</string>
 </resources>

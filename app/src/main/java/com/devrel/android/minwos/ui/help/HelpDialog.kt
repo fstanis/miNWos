@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.devrel.android.minwos.ui
+package com.devrel.android.minwos.ui.help
 
 import android.content.Context
 import android.content.DialogInterface
@@ -25,8 +25,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.text.HtmlCompat
 import com.devrel.android.minwos.BuildConfig
 import com.devrel.android.minwos.R
+import dagger.hilt.android.qualifiers.ActivityContext
+import javax.inject.Inject
 
-class HelpDialog(context: Context) : AlertDialog(context) {
+class HelpDialog @Inject constructor(@ActivityContext context: Context) : AlertDialog(context) {
     private val linkMovementMethod = LinkMovementMethod.getInstance()
     private val title = context.getString(R.string.help_title, BuildConfig.VERSION_NAME)
     private val message = HtmlCompat.fromHtml(
@@ -37,8 +39,7 @@ class HelpDialog(context: Context) : AlertDialog(context) {
         setTitle(title)
         setMessage(message)
         setButton(
-            DialogInterface.BUTTON_POSITIVE,
-            context.getString(R.string.button_ok)
+            DialogInterface.BUTTON_POSITIVE, context.getString(R.string.button_ok)
         ) { dialog, _ -> dialog.dismiss() }
     }
 
