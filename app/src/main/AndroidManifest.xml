@@ -15,13 +15,27 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.devrel.android.minwos">
 
+    <!-- Required to use NetworkCallback  -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Required for NetworkCallback to return all networks -->
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <!-- Required for persistent notification -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- Required to read TelephonyDisplayInfo -->
     <uses-permission
         android:name="android.permission.READ_PHONE_STATE"
         android:minSdkVersion="30" />
+
+    <!-- Not used, make sure they aren't included -->
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:node="remove" />
 
     <application
         android:name=".App"
@@ -38,7 +52,6 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".service.ForegroundStatusService" />
+        <service android:name=".service.ForegroundStatusService" />
     </application>
 </manifest>
