@@ -66,9 +66,9 @@
         </p>
     ]]></string>
     <string name="phone_state">Phone state (global)</string>
-    <string name="network_type_override">Network type override</string>
+    <string name="network_type_override">Network type override\n(from DisplayInfo)</string>
     <string name="network_type">Network type</string>
     <string name="network_state">Network state</string>
-    <string name="nr_state">NR state</string>
+    <string name="nr_state">NR state\n(from ServiceState)</string>
     <string name="toggle_notification">Toggle notification</string>
 </resources>

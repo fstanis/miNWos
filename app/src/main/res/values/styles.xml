@@ -36,6 +36,7 @@
 
     <style name="AppTheme.TableRow">
         <item name="android:textViewStyle">@style/TableTextView</item>
+        <item name="android:gravity">center_vertical</item>
     </style>
 
 </resources>
