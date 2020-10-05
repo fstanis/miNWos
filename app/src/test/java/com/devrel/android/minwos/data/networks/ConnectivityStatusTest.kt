@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.devrel.android.minwos.data
+package com.devrel.android.minwos.data.networks
 
 import android.net.LinkProperties
 import android.net.Network
-import com.devrel.android.minwos.data.ConnectivityStatus.NetworkData
+import com.devrel.android.minwos.data.networks.ConnectivityStatus.NetworkData
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.mockito.Mockito.`when`

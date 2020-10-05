@@ -23,7 +23,7 @@ import android.content.Context
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.devrel.android.minwos.R
-import com.devrel.android.minwos.data.ConnectivityStatus
+import com.devrel.android.minwos.data.networks.ConnectivityStatus
 import com.devrel.android.minwos.ui.util.formatBandwidth
 import com.devrel.android.minwos.ui.util.formatBoolean
 import dagger.hilt.android.qualifiers.ApplicationContext

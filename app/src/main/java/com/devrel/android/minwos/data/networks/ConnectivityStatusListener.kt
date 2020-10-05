@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.devrel.android.minwos.data
+package com.devrel.android.minwos.data.networks
 
 import android.net.ConnectivityManager
 import android.net.LinkProperties
@@ -23,7 +23,7 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.devrel.android.minwos.data.ConnectivityStatus.NetworkData
+import com.devrel.android.minwos.data.networks.ConnectivityStatus.NetworkData
 import javax.inject.Inject
 
 interface ConnectivityStatusListener : DefaultLifecycleObserver {
@@ -46,11 +46,11 @@ class ConnectivityStatusListenerImpl @Inject constructor(
     private val networks
         get() = ConnectivityStatus(networkMap[defaultNetwork], networkMap.values.toList())
 
-    private var callbacksRegistered = false
+    private var isListening = false
     private var callback: ((ConnectivityStatus) -> Unit)? = null
 
     override fun startListening() {
-        if (callbacksRegistered) {
+        if (isListening) {
             return
         }
         reset()
@@ -62,16 +62,16 @@ class ConnectivityStatusListenerImpl @Inject constructor(
             networkCallback
         )
         connectivityManager.registerDefaultNetworkCallback(defaultNetworkCallback)
-        callbacksRegistered = true
+        isListening = true
     }
 
     override fun stopListening() {
-        if (!callbacksRegistered) {
+        if (!isListening) {
             return
         }
         connectivityManager.unregisterNetworkCallback(networkCallback)
         connectivityManager.unregisterNetworkCallback(defaultNetworkCallback)
-        callbacksRegistered = false
+        isListening = false
     }
 
     private fun reset() {
@@ -100,6 +100,7 @@ class ConnectivityStatusListenerImpl @Inject constructor(
 
     override fun setCallback(callback: (ConnectivityStatus) -> Unit) {
         this.callback = callback
+        update()
     }
 
     override fun clearCallback() {
@@ -107,25 +108,26 @@ class ConnectivityStatusListenerImpl @Inject constructor(
     }
 
     private fun updateNetworkCapabilities(
-        network: Network, networkCapabilities: NetworkCapabilities
+        network: Network,
+        networkCapabilities: NetworkCapabilities
     ) {
         networkMap[network] =
             networkMap[network]?.copy(networkCapabilities = networkCapabilities)
-                ?: NetworkData(network, networkCapabilities = networkCapabilities)
+            ?: NetworkData(network, networkCapabilities = networkCapabilities)
         update()
     }
 
     private fun updateLinkProperties(network: Network, linkProperties: LinkProperties) {
         networkMap[network] =
             networkMap[network]?.copy(linkProperties = linkProperties)
-                ?: NetworkData(network, linkProperties = linkProperties)
+            ?: NetworkData(network, linkProperties = linkProperties)
         update()
     }
 
     private fun updateBlockedStatus(network: Network, blocked: Boolean) {
         networkMap[network] =
             networkMap[network]?.copy(isBlocked = blocked)
-                ?: NetworkData(network, isBlocked = blocked)
+            ?: NetworkData(network, isBlocked = blocked)
         update()
     }
 

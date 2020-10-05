@@ -17,18 +17,22 @@
 package com.devrel.android.minwos.service
 
 import android.app.ActivityManager
-import android.app.Service
 import android.content.Context
+import androidx.navigation.fragment.NavHostFragment
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
 import com.devrel.android.minwos.R
-import com.devrel.android.minwos.ui.main.MainActivity
+import com.devrel.android.minwos.ui.MainActivity
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -42,18 +46,26 @@ import org.junit.runner.RunWith
 @HiltAndroidTest
 class ForegroundStatusServiceTest {
     @get:Rule
-    var activityRule = ActivityTestRule(MainActivity::class.java)
+    var activityRule = ActivityScenarioRule(MainActivity::class.java)
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
     private lateinit var context: Context
     private lateinit var activityManager: ActivityManager
+    private lateinit var uiDevice: UiDevice
 
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
+        uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         activityManager = context.getSystemService(ActivityManager::class.java)
+        activityRule.scenario.onActivity {
+            val navHostFragment =
+                it.supportFragmentManager
+                    .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+            navHostFragment.navController.navigate(R.id.nav_networks)
+        }
     }
 
     @Test
@@ -62,15 +74,22 @@ class ForegroundStatusServiceTest {
 
         openActionBarOverflowOrOptionsMenu(context)
         onView(withText(toggleNotification)).perform(click())
-        assertThat(serviceExists(ForegroundStatusService::class.java)).isTrue()
+        uiDevice.openNotification()
+        assertThat(notificationExists()).isTrue()
+        uiDevice.pressBack()
 
         openActionBarOverflowOrOptionsMenu(context)
         onView(withText(toggleNotification)).perform(click())
-        assertThat(serviceExists(ForegroundStatusService::class.java)).isFalse()
+        uiDevice.openNotification()
+        assertThat(notificationExists()).isFalse()
+        uiDevice.pressBack()
     }
 
-    @Suppress("DEPRECATION")
-    private fun <T : Service> serviceExists(service: Class<T>) =
-        activityManager.getRunningServices(Int.MAX_VALUE)
-            .any { it.service.className == service.name }
+    private fun notificationExists() =
+        uiDevice.wait(
+            Until.hasObject(
+                By.res(context.resources.getResourceName(R.id.defaultNetworkNotification))
+            ),
+            2000
+        )
 }

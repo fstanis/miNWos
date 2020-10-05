@@ -19,8 +19,8 @@ package com.devrel.android.minwos.service
 import android.app.NotificationManager
 import android.content.Intent
 import androidx.lifecycle.LifecycleService
-import com.devrel.android.minwos.data.ConnectivityStatus
-import com.devrel.android.minwos.data.ConnectivityStatusListener
+import com.devrel.android.minwos.data.networks.ConnectivityStatus
+import com.devrel.android.minwos.data.networks.ConnectivityStatusListener
 import com.devrel.android.minwos.ui.notification.NetworkNotificationFactory
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -56,7 +56,9 @@ class ForegroundStatusService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
-        notificationManager.createNotificationChannel(networkNotificationFactory.createNotificationChannel())
+        notificationManager.createNotificationChannel(
+            networkNotificationFactory.createNotificationChannel()
+        )
         lifecycle.addObserver(connectivityStatusListener)
         connectivityStatusListener.setCallback { updateNotification(it.defaultNetwork) }
     }

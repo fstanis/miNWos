@@ -20,6 +20,7 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import java.text.DecimalFormatSymbols
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,10 +28,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class FormatExtensionsTest {
     private lateinit var context: Context
+    // 'lateinit' modifier is not allowed on properties of primitive types
+    private var separatorChar = '.'
 
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
+        separatorChar = DecimalFormatSymbols.getInstance().getDecimalSeparator()
     }
 
     @Test
@@ -42,8 +46,17 @@ class FormatExtensionsTest {
 
     @Test
     fun testFormatBandwidth() {
+        val separatorChar = DecimalFormatSymbols.getInstance().getDecimalSeparator()
         assertThat(context.formatBandwidth(12)).isEqualTo("12 kbps")
-        assertThat(context.formatBandwidth(1200)).isEqualTo("1.20 Mbps")
+        assertThat(context.formatBandwidth(1200)).isEqualTo("""1${separatorChar}20 Mbps""")
         assertThat(context.formatBandwidth(null)).ignoringCase().contains("unknown")
+    }
+
+    @Test
+    fun testFormatFrequency() {
+        assertThat(context.formatFrequency(12)).isEqualTo("12 kHz")
+        assertThat(context.formatFrequency(1200)).isEqualTo("""1${separatorChar}2 MHz""")
+        assertThat(context.formatFrequency(1200000)).isEqualTo("""1${separatorChar}2 GHz""")
+        assertThat(context.formatFrequency(null)).ignoringCase().contains("unknown")
     }
 }

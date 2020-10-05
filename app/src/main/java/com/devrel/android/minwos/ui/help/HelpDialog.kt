@@ -23,20 +23,14 @@ import android.text.method.LinkMovementMethod
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.text.HtmlCompat
-import com.devrel.android.minwos.BuildConfig
 import com.devrel.android.minwos.R
-import dagger.hilt.android.qualifiers.ActivityContext
-import javax.inject.Inject
 
-class HelpDialog @Inject constructor(@ActivityContext context: Context) : AlertDialog(context) {
+class HelpDialog(context: Context, title: String, htmlMessage: String) : AlertDialog(context) {
     private val linkMovementMethod = LinkMovementMethod.getInstance()
-    private val title = context.getString(R.string.help_title, BuildConfig.VERSION_NAME)
-    private val message = HtmlCompat.fromHtml(
-        context.getString(R.string.help_text), HtmlCompat.FROM_HTML_MODE_LEGACY
-    )
 
     init {
         setTitle(title)
+        val message = HtmlCompat.fromHtml(htmlMessage, HtmlCompat.FROM_HTML_MODE_LEGACY)
         setMessage(message)
         setButton(
             DialogInterface.BUTTON_POSITIVE, context.getString(R.string.button_ok)

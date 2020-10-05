@@ -19,5 +19,5 @@ network's current capabilities. For more information, see
 The default (active) network is always at the top and highlighted yellow. On
 some devices, only the default network can be displayed.
 
-The list is updated automatically when available networks change. Swipe down to
-trigger a manual update.
+miNWos can also display detailed information about the cellular network and your
+SIM subscriptions. To do that, select the "Phone state" tab.

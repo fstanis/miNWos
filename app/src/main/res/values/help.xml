@@ -1,0 +1,62 @@
+<!--
+  ~ Copyright 2020 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <string name="help_networks"><![CDATA[
+        <p>
+          This tab displays all the networks currently available to your device.
+        </p>
+        <p>
+          <font face="monospace">NOT_METERED</font> and
+          <font face="monospace">TEMPORARILY_NOT_METERED</font> are flags that indicate the
+          network\'s current capabilities. For more information, see
+          <a href="https://developer.android.com/reference/android/net/NetworkCapabilities">
+            <font face="monospace">NetworkCapabilities</font> in the Android documentation</a>.
+        </p>
+        <p>
+          The default (active) network is always at the top and
+          <span style="background:#FFFFD0">highlighted yellow</span>. On some devices, only the
+          default network can be displayed.
+        </p>
+        <p>
+          The list is updated automatically when available networks change. Press the &#128260;
+          button to trigger a manual update.
+        </p>
+        <p>
+          Use <i>Toggle notification</i> to show or hide a persistent notification that displays
+          information about the default (active) network even when the app is not in the foreground.
+        </p>
+    ]]></string>
+    <string name="help_phone_state"><![CDATA[
+        <p>
+          This tab displays the cellular status and info for every active subscription (SIM card).
+        </p>
+        <p>
+          The possible network types are defined inside
+          <a href="https://developer.android.com/reference/android/telephony/TelephonyManager">
+          <font face="monospace">TelephonyManager</font></a>
+          and the possible network type overrides are defined inside
+          <a href="https://developer.android.com/reference/android/telephony/TelephonyDisplayInfo">
+            <font face="monospace">TelephonyDisplayInfo</font></a>.
+          Network type overrides are only available in Android R and above.
+        </p>
+        <p>
+          The list is updated automatically when any of the states change, but it won\'t
+          automatically detect subscription (SIM card) changes. Press the &#128260; button to
+          re-detect active subscriptions.
+        </p>
+    ]]></string>
+</resources>

@@ -16,17 +16,27 @@
 
 package com.devrel.android.minwos.ui.util
 
-import android.content.Context
+import android.graphics.Color
+import android.widget.TableLayout
+import android.widget.TableRow
+import androidx.core.view.children
+import androidx.core.view.isVisible
 import com.devrel.android.minwos.R
 
-fun Context.formatBoolean(boolean: Boolean?) = when (boolean) {
-    null -> getString(R.string.state_unknown)
-    true -> getString(R.string.state_yes)
-    false -> getString(R.string.state_no)
-}
-
-fun Context.formatBandwidth(bandwidthKbps: Int?) = when (bandwidthKbps) {
-    null -> getString(R.string.state_unknown)
-    in 0..999 -> getString(R.string.bandwidth_kbps, bandwidthKbps)
-    else -> getString(R.string.bandwidth_mbps, bandwidthKbps.toFloat() / 1000)
+fun TableLayout.alternateRowBackground(): TableLayout {
+    var rowIndex = 0
+    this.children.forEach { row ->
+        if (!row.isVisible || row !is TableRow) {
+            return@forEach
+        }
+        row.setBackgroundColor(
+            if (rowIndex % 2 == 0) {
+                context.getColor(R.color.table_row_odd)
+            } else {
+                Color.TRANSPARENT
+            }
+        )
+        rowIndex++
+    }
+    return this
 }

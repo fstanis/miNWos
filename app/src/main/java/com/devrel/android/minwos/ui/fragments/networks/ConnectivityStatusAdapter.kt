@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package com.devrel.android.minwos.ui.main
+package com.devrel.android.minwos.ui.fragments.networks
 
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.devrel.android.minwos.R
-import com.devrel.android.minwos.data.ConnectivityStatus
-import com.devrel.android.minwos.data.ConnectivityStatus.NetworkData
+import com.devrel.android.minwos.data.networks.ConnectivityStatus
+import com.devrel.android.minwos.data.networks.ConnectivityStatus.NetworkData
 import com.devrel.android.minwos.databinding.ItemNetworkBinding
+import com.devrel.android.minwos.ui.util.alternateRowBackground
 import com.devrel.android.minwos.ui.util.formatBandwidth
 import com.devrel.android.minwos.ui.util.formatBoolean
 
@@ -37,7 +38,10 @@ class ConnectivityStatusAdapter : RecyclerView.Adapter<ConnectivityStatusAdapter
     inner class ViewHolder(private val binding: ItemNetworkBinding) :
         RecyclerView.ViewHolder(binding.root) {
         private val context = binding.root.context
-        private val colorHighlight = context.getColor(R.color.highlight)
+
+        init {
+            binding.capabilities.alternateRowBackground()
+        }
 
         fun setNetworkData(networkData: NetworkData) = with(context) {
             val isDefault = networkData == connectivityStatus.defaultNetwork
@@ -57,7 +61,7 @@ class ConnectivityStatusAdapter : RecyclerView.Adapter<ConnectivityStatusAdapter
             if (isDefault) context.getString(R.string.default_network_template, name) else name
 
         private fun getColor(isDefault: Boolean) =
-            if (isDefault) colorHighlight else Color.TRANSPARENT
+            if (isDefault) context.getColor(R.color.highlight) else Color.TRANSPARENT
     }
 
     init {

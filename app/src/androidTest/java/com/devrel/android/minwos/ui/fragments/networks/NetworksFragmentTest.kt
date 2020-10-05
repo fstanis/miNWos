@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.devrel.android.minwos.ui
+package com.devrel.android.minwos.ui.fragments.networks
 
 import android.net.LinkProperties
-import android.telephony.TelephonyManager
+import androidx.navigation.fragment.NavHostFragment
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -25,33 +25,36 @@ import androidx.test.espresso.matcher.ViewMatchers.hasChildCount
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import com.devrel.android.minwos.R
-import com.devrel.android.minwos.data.ConnectivityStatus
-import com.devrel.android.minwos.data.ConnectivityStatus.NetworkData
-import com.devrel.android.minwos.data.ConnectivityStatusListener
-import com.devrel.android.minwos.data.DataListenersModule
-import com.devrel.android.minwos.data.TelephonyStatus
-import com.devrel.android.minwos.data.TelephonyStatusListener
-import com.devrel.android.minwos.ui.main.MainActivity
+import com.devrel.android.minwos.data.DataListenersActivityModule
+import com.devrel.android.minwos.data.DataListenersServiceModule
+import com.devrel.android.minwos.data.networks.ConnectivityStatus
+import com.devrel.android.minwos.data.networks.ConnectivityStatus.NetworkData
+import com.devrel.android.minwos.data.networks.ConnectivityStatusListener
+import com.devrel.android.minwos.data.networks.FakeConnectivityStatusListener
+import com.devrel.android.minwos.data.phonestate.FakeTelephonyStatusListener
+import com.devrel.android.minwos.data.phonestate.TelephonyStatusListener
+import com.devrel.android.minwos.ui.MainActivity
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import org.hamcrest.Matchers.allOf
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@UninstallModules(DataListenersModule::class)
+@UninstallModules(DataListenersActivityModule::class, DataListenersServiceModule::class)
 @HiltAndroidTest
-class MainActivityTest {
+class NetworksFragmentTest {
     @get:Rule
-    var activityRule = ActivityTestRule(MainActivity::class.java)
+    var activityRule = ActivityScenarioRule(MainActivity::class.java)
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
@@ -63,6 +66,19 @@ class MainActivityTest {
     @JvmField
     @BindValue
     val telephonyStatusListener: TelephonyStatusListener = FakeTelephonyStatusListener()
+
+    private val connectivityCallback get() =
+        (connectivityStatusListener as FakeConnectivityStatusListener).connectivityCallback
+
+    @Before
+    fun setUp() {
+        activityRule.scenario.onActivity {
+            val navHostFragment =
+                it.supportFragmentManager
+                    .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+            navHostFragment.navController.navigate(R.id.nav_networks)
+        }
+    }
 
     @Test
     fun displaysNetworks() {
@@ -94,14 +110,6 @@ class MainActivityTest {
     }
 
     @Test
-    fun displaysPhoneStatus() {
-        telephonyCallback?.invoke(TelephonyStatus())
-        onView(withId(R.id.networkType)).check(matches(withText("UNKNOWN")))
-        telephonyCallback?.invoke(TelephonyStatus(networkType = TelephonyManager.NETWORK_TYPE_CDMA))
-        onView(withId(R.id.networkType)).check(matches(withText("CDMA")))
-    }
-
-    @Test
     fun refreshButton() {
         onView(withId(R.id.action_refresh)).perform(click())
         onView(withId(R.id.networksRecyclerView)).check(
@@ -112,46 +120,5 @@ class MainActivityTest {
                 )
             )
         )
-    }
-
-    var connectivityCallback: ((ConnectivityStatus) -> Unit)? = null
-    var telephonyCallback: ((TelephonyStatus) -> Unit)? = null
-
-    inner class FakeConnectivityStatusListener : ConnectivityStatusListener {
-        override fun setCallback(callback: (ConnectivityStatus) -> Unit) {
-            connectivityCallback = callback
-        }
-
-        override fun clearCallback() {
-            connectivityCallback = null
-        }
-
-        override fun startListening() {}
-        override fun stopListening() {}
-        override fun refresh() {
-            connectivityCallback?.invoke(
-                ConnectivityStatus(
-                    null,
-                    listOf(
-                        NetworkData(
-                            0,
-                            linkProperties = LinkProperties().apply { interfaceName = "refresh" })
-                    )
-                )
-            )
-        }
-    }
-
-    inner class FakeTelephonyStatusListener : TelephonyStatusListener {
-        override fun setCallback(callback: (TelephonyStatus) -> Unit) {
-            telephonyCallback = callback
-        }
-
-        override fun clearCallback() {
-            telephonyCallback = null
-        }
-
-        override fun startListening() {}
-        override fun stopListening() {}
     }
 }

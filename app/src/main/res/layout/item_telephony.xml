@@ -19,7 +19,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/highlight"
     android:orientation="vertical"
     android:paddingTop="@dimen/default_padding">
 
@@ -28,79 +27,106 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/default_margin"
+        android:text=""
         android:theme="@style/TitleTextView"
-        tools:text="@tools:sample/lorem" />
+        tools:text="Subscription #1" />
 
     <TableLayout
-        android:id="@+id/capabilities"
+        android:id="@+id/networkInfo"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/default_margin"
-        android:shrinkColumns="0"
+        android:shrinkColumns="0,1"
         android:theme="@style/AppTheme.TableRow">
 
         <TableRow>
 
-            <TextView android:text="@string/download_bandwidth" />
+            <TextView android:text="@string/sim_carrier" />
 
             <TextView
-                android:id="@+id/downloadBandwidth"
+                android:id="@+id/simCarrier"
                 android:text="@string/state_unknown" />
         </TableRow>
 
         <TableRow>
 
-            <TextView android:text="@string/upload_bandwidth" />
+            <TextView android:text="@string/default_data_sub" />
 
             <TextView
-                android:id="@+id/uploadBandwidth"
+                android:id="@+id/isDefaultDataSub"
                 android:text="@string/state_unknown" />
         </TableRow>
 
         <TableRow>
 
-            <TextView android:text="@string/cellular_connection" />
+            <TextView android:text="@string/active_data_sub" />
 
             <TextView
-                android:id="@+id/cellular"
+                android:id="@+id/isActiveDataSub"
                 android:text="@string/state_unknown" />
         </TableRow>
 
         <TableRow>
 
-            <TextView android:text="@string/internet_access" />
+            <TextView android:text="@string/network_type" />
 
             <TextView
-                android:id="@+id/hasInternet"
+                android:id="@+id/networkType"
                 android:text="@string/state_unknown" />
         </TableRow>
 
         <TableRow>
 
-            <TextView
-                android:fontFamily="monospace"
-                android:text="@string/cap_not_metered" />
+            <TextView android:text="@string/cell_bandwidths" />
 
             <TextView
-                android:id="@+id/meteredness"
+                android:id="@+id/cellBandwidths"
                 android:text="@string/state_unknown" />
         </TableRow>
 
         <TableRow>
 
-            <TextView
-                android:fontFamily="monospace"
-                android:text="@string/cap_temp_not_metered" />
+            <TextView android:text="@string/signal_strengths" />
 
             <TextView
-                android:id="@+id/tempMeteredness"
+                android:id="@+id/signalStrengths"
+                android:text="@string/state_unknown" />
+        </TableRow>
+
+        <TableRow>
+
+            <TextView android:text="@string/network_state" />
+
+            <TextView
+                android:id="@+id/networkState"
+                android:text="@string/state_unknown" />
+        </TableRow>
+
+        <TableRow>
+
+            <TextView android:text="@string/nr_state" />
+
+            <TextView
+                android:id="@+id/nrState"
+                android:text="@string/state_unknown" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/overrideNetworkTypeRow"
+            android:visibility="gone">
+
+            <TextView android:text="@string/network_type_override" />
+
+            <TextView
+                android:id="@+id/overrideNetworkType"
                 android:text="@string/state_unknown" />
         </TableRow>
     </TableLayout>
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="@dimen/divider_height"
-        android:layout_marginTop="@dimen/default_margin"
+        android:layout_height="2dp"
+        android:layout_marginTop="8dp"
         android:background="?android:attr/listDivider" />
+
 </LinearLayout>

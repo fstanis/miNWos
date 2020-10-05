@@ -16,6 +16,7 @@
 
 <resources>
     <string name="app_name">miNWos</string>
+    <string name="app_name_version">miNWos v%1$s</string>
     <string name="default_network">Default network</string>
     <string name="state_yes">\u2705 YES</string>
     <string name="state_no">\u274C NO</string>
@@ -29,46 +30,25 @@
     <string name="upload_bandwidth">Upload bandwidth</string>
     <string name="bandwidth_kbps">%1$d kbps</string>
     <string name="bandwidth_mbps">%1$.2f Mbps</string>
+    <string name="frequency_khz">%1$d kHz</string>
+    <string name="frequency_mhz">%1$s MHz</string>
+    <string name="frequency_ghz">%1$s GHz</string>
     <string name="permissions_warning">\u26A0\uFE0F Missing required permissions (tap here to retry)</string>
     <string name="button_ok">OK</string>
     <string name="help">Help</string>
     <string name="refresh">Refresh</string>
-    <string name="help_title">miNWos version %1$s</string>
-    <string name="help_text"><![CDATA[
-        <p>
-          miNWos displays the networks and cellular state of your device.
-        </p>
-        <p>
-          At the top is the <span style="background:#F6E6FF">phone state</span> which contains data
-          about your cellular network and is global and singular. Below it is a list of all the
-          networks currently available to your device, which may include Wi-Fi, cellular data and
-          others.
-        </p>
-        <p>
-          <font face="monospace">NOT_METERED</font> and
-          <font face="monospace">TEMPORARILY_NOT_METERED</font> are flags that indicate the
-          network\'s current capabilities. For more information, see
-          <a href="https://developer.android.com/reference/android/net/NetworkCapabilities">
-            <font face="monospace">NetworkCapabilities</font> in the Android documentation</a>.
-        </p>
-        <p>
-          The default (active) network is always at the top and
-          <span style="background:#FFFFD0">highlighted yellow</span>. On some devices, only the
-          default network can be displayed.
-        </p>
-        <p>
-          The list is updated automatically when available networks change. Press the &#128260;
-          button to trigger a manual update.
-        </p>
-        <p>
-          Use <i>Toggle notification</i> to show or hide a persistent notification that displays
-          information about the default (active) network even when the app is not in the foreground.
-        </p>
-    ]]></string>
-    <string name="phone_state">Phone state (global)</string>
     <string name="network_type_override">Network type override\n(from DisplayInfo)</string>
     <string name="network_type">Network type</string>
     <string name="network_state">Network state</string>
     <string name="nr_state">NR state\n(from ServiceState)</string>
     <string name="toggle_notification">Toggle notification</string>
+    <string name="title_networks">Networks</string>
+    <string name="title_phone_state">Phone state</string>
+    <string name="subscription_template">Subscription #%1$d</string>
+    <string name="default_subscription_template">Subscription #%1$d (default)</string>
+    <string name="default_data_sub">Default for data</string>
+    <string name="active_data_sub">Active data</string>
+    <string name="sim_carrier">SIM carrier</string>
+    <string name="cell_bandwidths">Cell bandwidth(s)</string>
+    <string name="signal_strengths">Signal strength(s)</string>
 </resources>

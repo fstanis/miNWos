@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright 2020 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,17 +18,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.devrel.android.minwos">
-
-    <!-- Required to use NetworkCallback  -->
+    <!-- Required to use NetworkCallback -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <!-- Required for NetworkCallback to return all networks -->
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+
     <!-- Required for persistent notification -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
     <!-- Required to read TelephonyDisplayInfo -->
-    <uses-permission
-        android:name="android.permission.READ_PHONE_STATE"
-        android:minSdkVersion="30" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <!-- Not used, make sure they aren't included -->
     <uses-permission
@@ -45,13 +46,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.main.MainActivity">
+        <activity android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <service android:name=".service.ForegroundStatusService" />
     </application>
+
 </manifest>

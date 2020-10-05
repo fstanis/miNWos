@@ -16,17 +16,35 @@
 
 package com.devrel.android.minwos.data
 
+import com.devrel.android.minwos.data.networks.ConnectivityStatusListener
+import com.devrel.android.minwos.data.networks.ConnectivityStatusListenerImpl
+import com.devrel.android.minwos.data.phonestate.TelephonyStatusListener
+import com.devrel.android.minwos.data.phonestate.TelephonyStatusListenerImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ApplicationComponent
+import dagger.hilt.android.components.ActivityComponent
+import dagger.hilt.android.components.ServiceComponent
+import dagger.hilt.android.scopes.ActivityScoped
 
 @Module
-@InstallIn(ApplicationComponent::class)
-abstract class DataListenersModule {
+@InstallIn(ActivityComponent::class)
+abstract class DataListenersActivityModule {
+    @ActivityScoped
     @Binds
-    abstract fun bindConnectivityStatusListener(impl: ConnectivityStatusListenerImpl): ConnectivityStatusListener
+    abstract fun bindConnectivityStatusListener(impl: ConnectivityStatusListenerImpl):
+        ConnectivityStatusListener
 
+    @ActivityScoped
     @Binds
-    abstract fun bindTelephonyStatusListener(impl: TelephonyStatusListenerImpl): TelephonyStatusListener
+    abstract fun bindTelephonyStatusListener(impl: TelephonyStatusListenerImpl):
+        TelephonyStatusListener
+}
+
+@Module
+@InstallIn(ServiceComponent::class)
+abstract class DataListenersServiceModule {
+    @Binds
+    abstract fun bindConnectivityStatusListener(impl: ConnectivityStatusListenerImpl):
+        ConnectivityStatusListener
 }

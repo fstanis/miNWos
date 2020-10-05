@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.devrel.android.minwos.data
+package com.devrel.android.minwos.data.phonestate
 
 import android.telephony.ServiceState
 import android.telephony.TelephonyDisplayInfo
@@ -25,28 +25,31 @@ import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 
 class TelephonyStatusTest {
+    private val baseTelephonyData =
+        TelephonyStatus.TelephonyData(SubscriptionInfo(1, 0), SimInfo("", ""))
+
     @Test
     fun `uses data from TelephonyDisplayInfo`() {
-        var underTest = TelephonyStatus()
+        var underTest = baseTelephonyData
         assertThat(underTest.networkTypeString).isEqualTo("UNKNOWN")
         assertThat(underTest.overrideNetworkTypeString).isEqualTo("UNKNOWN")
 
-        val displayInfo = mock(TelephonyDisplayInfo::class.java)
-        `when`(displayInfo.networkType).thenReturn(TelephonyManager.NETWORK_TYPE_CDMA)
-        `when`(displayInfo.overrideNetworkType).thenReturn(TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA)
-        underTest = underTest.withDisplayInfo(displayInfo)
+        underTest = baseTelephonyData.copy(
+            networkType = TelephonyManager.NETWORK_TYPE_CDMA,
+            overrideNetworkType = TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA
+        )
         assertThat(underTest.networkTypeString).isEqualTo("CDMA")
         assertThat(underTest.overrideNetworkTypeString).isEqualTo("NR_NSA")
     }
 
     @Test
     fun `uses data from NetworkState`() {
-        var underTest = TelephonyStatus()
+        var underTest = baseTelephonyData
         assertThat(underTest.networkStateString).isEqualTo("DISCONNECTED")
         assertThat(underTest.networkTypeString).isEqualTo("UNKNOWN")
-        underTest = underTest.withNetworkState(
-            TelephonyManager.DATA_SUSPENDED,
-            TelephonyManager.NETWORK_TYPE_CDMA
+        underTest = baseTelephonyData.copy(
+            networkState = TelephonyManager.DATA_SUSPENDED,
+            networkType = TelephonyManager.NETWORK_TYPE_CDMA
         )
         assertThat(underTest.networkStateString).isEqualTo("SUSPENDED")
         assertThat(underTest.networkTypeString).isEqualTo("CDMA")
@@ -54,16 +57,16 @@ class TelephonyStatusTest {
 
     @Test
     fun `parses string from ServiceState`() {
-        val base = TelephonyStatus()
+        val base = baseTelephonyData
         val serviceState = mock(ServiceState::class.java)
 
         `when`(serviceState.toString()).thenReturn("nrState=NOT_RESTRICTED nrState=CONNECTED")
-        assertThat(base.withServiceState(serviceState).nrState).isEqualTo("CONNECTED")
+        assertThat(base.copy(serviceState = serviceState).nrState).isEqualTo("CONNECTED")
 
         `when`(serviceState.toString()).thenReturn("nrState=NOT_RESTRICTED")
-        assertThat(base.withServiceState(serviceState).nrState).isEqualTo("NOT_RESTRICTED")
+        assertThat(base.copy(serviceState = serviceState).nrState).isEqualTo("NOT_RESTRICTED")
 
         `when`(serviceState.toString()).thenReturn("lorem ipsum")
-        assertThat(base.withServiceState(serviceState).nrState).isEqualTo("UNKNOWN")
+        assertThat(base.copy(serviceState = serviceState).nrState).isEqualTo("UNKNOWN")
     }
 }

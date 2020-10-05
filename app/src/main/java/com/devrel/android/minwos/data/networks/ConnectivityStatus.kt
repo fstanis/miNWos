@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.devrel.android.minwos.data
+package com.devrel.android.minwos.data.networks
 
 import android.net.LinkProperties
 import android.net.Network
@@ -43,13 +43,15 @@ data class ConnectivityStatus(
         val name = linkProperties?.interfaceName ?: "<unknown>"
         val isCellular = networkCapabilities?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
         val hasInternet = networkCapabilities?.let {
-            it.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                    && it.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+            it.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                it.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
         }
         val isNotMetered =
             networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
         val isTemporarilyNotMetered =
-            networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED)
+            networkCapabilities?.hasCapability(
+                NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED
+            )
 
         override fun compareTo(other: NetworkData): Int = name.compareTo(other.name)
     }

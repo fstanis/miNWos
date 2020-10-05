@@ -20,6 +20,7 @@ import android.app.Application
 import android.app.NotificationManager
 import android.content.Context
 import android.net.ConnectivityManager
+import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import dagger.Module
 import dagger.Provides
@@ -49,4 +50,9 @@ object AppModule {
     @Singleton
     fun provideNotificationManager(@ApplicationContext context: Context) =
         context.getSystemService(NotificationManager::class.java)!!
+
+    @Provides
+    @Singleton
+    fun provideSubscriptionManager(@ApplicationContext context: Context) =
+        context.getSystemService(SubscriptionManager::class.java)
 }

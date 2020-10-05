@@ -14,26 +14,18 @@
  * limitations under the License.
  */
 
-package com.devrel.android.minwos.ui.main
+package com.devrel.android.minwos.ui.fragments.phonestate
 
-import android.telephony.CarrierConfigManager
 import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.devrel.android.minwos.data.ConnectivityStatus
-import com.devrel.android.minwos.data.ConnectivityStatusListener
-import com.devrel.android.minwos.data.TelephonyStatus
-import com.devrel.android.minwos.data.TelephonyStatusListener
+import com.devrel.android.minwos.data.phonestate.TelephonyStatus
+import com.devrel.android.minwos.data.phonestate.TelephonyStatusListener
 
-class MainViewModel @ViewModelInject constructor(
-    private val connectivityStatusListener: ConnectivityStatusListener,
+class PhoneStateViewModel @ViewModelInject constructor(
     private val telephonyStatusListener: TelephonyStatusListener
 ) : ViewModel() {
-    private val connectivityStatusMutable = MutableLiveData<ConnectivityStatus>()
-    val connectivityStatus: LiveData<ConnectivityStatus> get() = connectivityStatusMutable
-
     private val telephonyStatusMutable = MutableLiveData<TelephonyStatus>()
     val telephonyStatus: LiveData<TelephonyStatus> get() = telephonyStatusMutable
 
@@ -41,14 +33,10 @@ class MainViewModel @ViewModelInject constructor(
     val permissionsGranted: LiveData<Boolean> get() = permissionsGrantedMutable
 
     init {
-        connectivityStatusListener.setCallback { connectivityStatusMutable.postValue(it) }
         telephonyStatusListener.setCallback { telephonyStatusMutable.postValue(it) }
     }
 
-    fun observeEvents(owner: LifecycleOwner) {
-        owner.lifecycle.addObserver(connectivityStatusListener)
-        owner.lifecycle.addObserver(telephonyStatusListener)
-    }
+    fun refresh() = telephonyStatusListener.refresh()
 
     fun updatePermissions(granted: Boolean) {
         if (granted) {
@@ -57,10 +45,7 @@ class MainViewModel @ViewModelInject constructor(
         permissionsGrantedMutable.postValue(granted)
     }
 
-    fun refresh() = connectivityStatusListener.refresh()
-
     override fun onCleared() {
-        connectivityStatusListener.clearCallback()
         telephonyStatusListener.clearCallback()
         super.onCleared()
     }

@@ -15,104 +15,31 @@
   ~ limitations under the License.
   -->
 
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:background="?android:attr/windowBackground"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
 
-        <LinearLayout
-            android:id="@+id/globalInfo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/global"
-            android:orientation="vertical"
-            android:paddingTop="@dimen/default_padding">
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/nav_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:defaultNavHost="true"
+        app:layout_constraintBottom_toTopOf="@+id/nav_view"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navGraph="@navigation/nav" />
 
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/default_margin"
-                android:text="@string/phone_state"
-                android:theme="@style/TitleTextView" />
-
-            <TableLayout
-                android:id="@+id/networkInfo"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginHorizontal="@dimen/default_margin"
-                android:shrinkColumns="0,1"
-                android:theme="@style/AppTheme.TableRow">
-
-                <TableRow android:background="#11000000">
-
-                    <TextView android:text="@string/network_type" />
-
-                    <TextView
-                        android:id="@+id/networkType"
-                        android:text="@string/state_unknown" />
-                </TableRow>
-
-                <TableRow>
-
-                    <TextView android:text="@string/network_state" />
-
-                    <TextView
-                        android:id="@+id/networkState"
-                        android:text="@string/state_unknown" />
-                </TableRow>
-
-                <TableRow android:background="#11000000">
-
-                    <TextView android:text="@string/nr_state" />
-
-                    <TextView
-                        android:id="@+id/nrState"
-                        android:text="@string/state_unknown" />
-                </TableRow>
-
-                <TableRow
-                    android:id="@+id/overrideNetworkTypeRow"
-                    android:visibility="gone">
-
-                    <TextView android:text="@string/network_type_override" />
-
-                    <TextView
-                        android:id="@+id/overrideNetworkType"
-                        android:text="@string/state_unknown" />
-                </TableRow>
-            </TableLayout>
-
-            <TextView
-                android:id="@+id/permissionsWarning"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/default_margin"
-                android:gravity="center_horizontal"
-                android:paddingVertical="@dimen/default_padding"
-                android:text="@string/permissions_warning"
-                android:textColor="@android:color/primary_text_light"
-                android:visibility="gone" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:layout_marginTop="8dp"
-                android:background="?android:attr/listDivider" />
-
-        </LinearLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/networksRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false"
-            tools:listitem="@layout/item_network" />
-
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>
