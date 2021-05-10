@@ -16,6 +16,7 @@
 
 package com.devrel.android.minwos.data.phonestate
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.telephony.AccessNetworkConstants
 import android.telephony.CellSignalStrength
@@ -32,6 +33,7 @@ import android.telephony.TelephonyDisplayInfo
 import android.telephony.TelephonyManager
 import androidx.recyclerview.widget.DiffUtil
 
+@SuppressLint("NewApi")
 data class TelephonyStatus(
     val subscriptions: List<TelephonyData>
 ) {
@@ -55,23 +57,22 @@ data class TelephonyStatus(
         val nrState get() = networkRegistrationInfo?.toString()?.let { nrStateFromString(it) }
         val cellBandwidths: List<Int>?
             get() =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    serviceState?.cellBandwidths?.takeUnless { it.isEmpty() }?.toList()
-                } else {
-                    null
-                }
+                serviceState
+                    .takeIf { Build.VERSION.SDK_INT >= Build.VERSION_CODES.P }
+                    ?.cellBandwidths
+                    ?.takeIf { it.isNotEmpty() }
+                    ?.toList()
         val signalStrengths: List<String>?
             get() = signalStrength?.let { signalStrengthToString(it) }
         val networkRegistrationInfo
             get() =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    serviceState?.networkRegistrationInfoList?.find {
+                serviceState
+                    .takeIf { Build.VERSION.SDK_INT >= Build.VERSION_CODES.R }
+                    ?.networkRegistrationInfoList
+                    ?.find {
                         it.transportType == AccessNetworkConstants.TRANSPORT_TYPE_WWAN &&
                             it.domain and NetworkRegistrationInfo.DOMAIN_PS != 0
                     }
-                } else {
-                    null
-                }
 
         companion object {
             val diffUtil = object : DiffUtil.ItemCallback<TelephonyData>() {
