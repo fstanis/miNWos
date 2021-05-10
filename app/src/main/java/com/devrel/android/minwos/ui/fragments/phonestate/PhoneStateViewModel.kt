@@ -16,14 +16,16 @@
 
 package com.devrel.android.minwos.ui.fragments.phonestate
 
-import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.devrel.android.minwos.data.phonestate.TelephonyStatus
 import com.devrel.android.minwos.data.phonestate.TelephonyStatusListener
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class PhoneStateViewModel @ViewModelInject constructor(
+@HiltViewModel
+class PhoneStateViewModel @Inject constructor(
     private val telephonyStatusListener: TelephonyStatusListener
 ) : ViewModel() {
     private val telephonyStatusMutable = MutableLiveData<TelephonyStatus>()

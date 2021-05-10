@@ -16,14 +16,16 @@
 
 package com.devrel.android.minwos.ui.fragments.networks
 
-import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.devrel.android.minwos.data.networks.ConnectivityStatus
 import com.devrel.android.minwos.data.networks.ConnectivityStatusListener
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class NetworksViewModel @ViewModelInject constructor(
+@HiltViewModel
+class NetworksViewModel @Inject constructor(
     private val connectivityStatusListener: ConnectivityStatusListener
 ) : ViewModel() {
     private val connectivityStatusMutable = MutableLiveData<ConnectivityStatus>()

@@ -23,19 +23,19 @@ import com.devrel.android.minwos.data.phonestate.TelephonyStatusListenerImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
+import dagger.hilt.android.components.ActivityRetainedComponent
 import dagger.hilt.android.components.ServiceComponent
-import dagger.hilt.android.scopes.ActivityScoped
+import dagger.hilt.android.scopes.ActivityRetainedScoped
 
 @Module
-@InstallIn(ActivityComponent::class)
+@InstallIn(ActivityRetainedComponent::class)
 abstract class DataListenersActivityModule {
-    @ActivityScoped
+    @ActivityRetainedScoped
     @Binds
     abstract fun bindConnectivityStatusListener(impl: ConnectivityStatusListenerImpl):
         ConnectivityStatusListener
 
-    @ActivityScoped
+    @ActivityRetainedScoped
     @Binds
     abstract fun bindTelephonyStatusListener(impl: TelephonyStatusListenerImpl):
         TelephonyStatusListener
