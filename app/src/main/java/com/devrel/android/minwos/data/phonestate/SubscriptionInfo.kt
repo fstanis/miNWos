@@ -32,7 +32,11 @@ data class SubscriptionInfo(
         fun getForId(id: Int) =
             SubscriptionInfo(
                 id = id,
-                simSlot = SubscriptionManager.getSlotIndex(id),
+                simSlot = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    SubscriptionManager.getSlotIndex(id)
+                } else {
+                    0
+                },
                 isDefault = SubscriptionManager.getDefaultSubscriptionId() == id,
                 isDefaultSms = SubscriptionManager.getDefaultSmsSubscriptionId() == id,
                 isDefaultData = SubscriptionManager.getDefaultDataSubscriptionId() == id,
