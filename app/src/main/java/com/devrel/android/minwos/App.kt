@@ -20,6 +20,7 @@ import android.app.Application
 import android.app.NotificationManager
 import android.content.Context
 import android.net.ConnectivityManager
+import android.os.Vibrator
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import dagger.Module
@@ -29,6 +30,10 @@ import dagger.hilt.android.HiltAndroidApp
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
 @HiltAndroidApp
 class App : Application()
@@ -37,22 +42,30 @@ class App : Application()
 @InstallIn(SingletonComponent::class)
 object AppModule {
     @Provides
-    @Singleton
     fun provideConnectivityManager(@ApplicationContext context: Context) =
         context.getSystemService(ConnectivityManager::class.java)!!
 
     @Provides
-    @Singleton
     fun provideTelephonyManager(@ApplicationContext context: Context) =
         context.getSystemService(TelephonyManager::class.java)!!
 
     @Provides
-    @Singleton
     fun provideNotificationManager(@ApplicationContext context: Context) =
         context.getSystemService(NotificationManager::class.java)!!
 
     @Provides
-    @Singleton
     fun provideSubscriptionManager(@ApplicationContext context: Context) =
         context.getSystemService(SubscriptionManager::class.java)!!
+
+    @Provides
+    fun provideVibrator(@ApplicationContext context: Context) =
+        context.getSystemService(Vibrator::class.java)!!
+
+    @Provides
+    fun provideDispatcher() = Dispatchers.Default
+
+    @Provides
+    @Singleton
+    fun provideCoroutineScope(coroutineDispatcher: CoroutineDispatcher): CoroutineScope =
+        CoroutineScope(SupervisorJob() + coroutineDispatcher)
 }

@@ -16,12 +16,19 @@
 
 package com.devrel.android.minwos.ui.fragments.networks
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.devrel.android.minwos.data.networks.ConnectivityStatus
 import com.devrel.android.minwos.data.networks.ConnectivityStatusListener
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.withTimeoutOrNull
+import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.times
@@ -29,15 +36,21 @@ import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
 
 class NetworksViewModelTest {
-    @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
-
     @Mock
     lateinit var connectivityListener: ConnectivityStatusListener
+
+    private val mainThreadSurrogate = newSingleThreadContext("UI thread")
 
     @Before
     fun setUp() {
         MockitoAnnotations.initMocks(this)
+        Dispatchers.setMain(mainThreadSurrogate)
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+        mainThreadSurrogate.close()
     }
 
     @Test
@@ -49,21 +62,17 @@ class NetworksViewModelTest {
     }
 
     @Test
-    fun `ConnectivityStatus in LiveData`() {
-        var cbk: ((ConnectivityStatus) -> Unit)? = null
+    fun `ConnectivityStatus in StateFlow`() = runBlocking {
+        val flow = MutableSharedFlow<ConnectivityStatus>(1)
         val underTest = NetworksViewModel(object : ConnectivityStatusListener {
-            override fun startListening() {}
-            override fun stopListening() {}
+            override val flow get() = flow
             override fun refresh() {}
-            override fun clearCallback() {}
-            override fun setCallback(callback: (ConnectivityStatus) -> Unit) {
-                cbk = callback
-            }
         })
-        val status = ConnectivityStatus(null, listOf())
-        assertThat(cbk).isNotNull()
-        assertThat(underTest.connectivityStatus.value).isNull()
-        cbk!!(status)
+        val status = ConnectivityStatus(null, listOf(ConnectivityStatus.NetworkData(1)))
+        assertThat(underTest.connectivityStatus.value).isNotSameInstanceAs(status)
+        flow.emit(status)
+        // collect() to trigger the flow, because the StateFlow has WhileSubscribed()
+        withTimeoutOrNull(100) { underTest.connectivityStatus.collect { } }
         assertThat(underTest.connectivityStatus.value).isSameInstanceAs(status)
     }
 }

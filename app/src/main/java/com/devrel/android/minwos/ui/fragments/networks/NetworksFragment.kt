@@ -27,13 +27,17 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat.startForegroundService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.devrel.android.minwos.R
 import com.devrel.android.minwos.databinding.FragmentNetworksBinding
 import com.devrel.android.minwos.service.ForegroundStatusService
 import com.devrel.android.minwos.ui.help.HelpDialog
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class NetworksFragment : Fragment() {
@@ -68,12 +72,12 @@ class NetworksFragment : Fragment() {
             layoutManager = viewManager
             adapter = viewAdapter
         }
-        viewModel.connectivityStatus.observe(
-            viewLifecycleOwner,
-            Observer { networkStatus ->
-                viewAdapter.connectivityStatus = networkStatus
-            }
-        )
+        lifecycleScope.launch {
+            viewModel.connectivityStatus.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collect { networkStatus ->
+                    viewAdapter.connectivityStatus = networkStatus
+                }
+        }
     }
 
     private fun showHelp() {

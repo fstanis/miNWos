@@ -16,29 +16,24 @@
 
 package com.devrel.android.minwos.ui.fragments.networks
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.devrel.android.minwos.data.networks.ConnectivityStatus
 import com.devrel.android.minwos.data.networks.ConnectivityStatusListener
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
+import kotlinx.coroutines.flow.stateIn
 
 @HiltViewModel
 class NetworksViewModel @Inject constructor(
     private val connectivityStatusListener: ConnectivityStatusListener
 ) : ViewModel() {
-    private val connectivityStatusMutable = MutableLiveData<ConnectivityStatus>()
-    val connectivityStatus: LiveData<ConnectivityStatus> get() = connectivityStatusMutable
-
-    init {
-        connectivityStatusListener.setCallback { connectivityStatusMutable.postValue(it) }
-    }
+    val connectivityStatus = connectivityStatusListener.flow.stateIn(
+        viewModelScope,
+        WhileSubscribed(),
+        ConnectivityStatus.EMPTY
+    )
 
     fun refresh() = connectivityStatusListener.refresh()
-
-    override fun onCleared() {
-        connectivityStatusListener.clearCallback()
-        super.onCleared()
-    }
 }
