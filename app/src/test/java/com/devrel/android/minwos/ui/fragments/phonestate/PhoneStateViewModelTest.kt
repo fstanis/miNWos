@@ -16,12 +16,21 @@
 
 package com.devrel.android.minwos.ui.fragments.phonestate
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.devrel.android.minwos.data.phonestate.SimInfo
+import com.devrel.android.minwos.data.phonestate.SubscriptionInfo
 import com.devrel.android.minwos.data.phonestate.TelephonyStatus
 import com.devrel.android.minwos.data.phonestate.TelephonyStatusListener
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.withTimeoutOrNull
+import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.times
@@ -29,15 +38,21 @@ import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
 
 class PhoneStateViewModelTest {
-    @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
-
     @Mock
     lateinit var telephonyListener: TelephonyStatusListener
+
+    private val mainThreadSurrogate = newSingleThreadContext("UI thread")
 
     @Before
     fun setUp() {
         MockitoAnnotations.initMocks(this)
+        Dispatchers.setMain(mainThreadSurrogate)
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+        mainThreadSurrogate.close()
     }
 
     @Test
@@ -49,21 +64,29 @@ class PhoneStateViewModelTest {
     }
 
     @Test
-    fun `TelephonyStatus in LiveData`() {
-        var cbk: ((TelephonyStatus) -> Unit)? = null
+    fun `TelephonyStatus in StateFlow`() = runBlocking {
+        val flow = MutableSharedFlow<TelephonyStatus>(1)
         val underTest = PhoneStateViewModel(object : TelephonyStatusListener {
-            override fun startListening() {}
-            override fun stopListening() {}
+            override val flow get() = flow
             override fun refresh() {}
-            override fun clearCallback() {}
-            override fun setCallback(callback: (TelephonyStatus) -> Unit) {
-                cbk = callback
-            }
+            override fun recheckPermissions() {}
         })
-        val status = TelephonyStatus(listOf())
-        assertThat(cbk).isNotNull()
-        assertThat(underTest.telephonyStatus.value).isNull()
-        cbk!!(status)
-        assertThat(underTest.telephonyStatus.value).isSameInstanceAs(status)
+
+        val status = TelephonyStatus(
+            listOf(
+                TelephonyStatus.TelephonyData(SubscriptionInfo(1, 2), SimInfo("", ""))
+            )
+        )
+        flow.emit(status)
+
+        // collect() to trigger the flow, because the StateFlow has WhileSubscribed()
+        withTimeoutOrNull(100) { underTest.state.collect { } }
+        assertThat(underTest.state.value.telephonyStatus).isSameInstanceAs(status)
+        assertThat(underTest.state.value.permissionsGranted).isFalse()
+
+        underTest.updatePermissions(true)
+        withTimeoutOrNull(100) { underTest.state.collect { } }
+        assertThat(underTest.state.value.telephonyStatus).isSameInstanceAs(status)
+        assertThat(underTest.state.value.permissionsGranted).isTrue()
     }
 }

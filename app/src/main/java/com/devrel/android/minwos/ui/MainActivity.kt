@@ -50,7 +50,5 @@ class MainActivity : AppCompatActivity() {
         }
         supportActionBar?.subtitle = getString(R.string.app_name_version, BuildConfig.VERSION_NAME)
         binding.navView.setupWithNavController(navController)
-        lifecycle.addObserver(connectivityStatusListener)
-        lifecycle.addObserver(telephonyStatusListener)
     }
 }

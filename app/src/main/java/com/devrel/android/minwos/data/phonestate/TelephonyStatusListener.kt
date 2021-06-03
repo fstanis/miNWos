@@ -29,61 +29,57 @@ import android.telephony.SubscriptionManager.INVALID_SUBSCRIPTION_ID
 import android.telephony.TelephonyDisplayInfo
 import android.telephony.TelephonyManager
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
+import com.devrel.android.minwos.data.util.RefreshFlow
+import com.devrel.android.minwos.data.util.VibrationHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.shareIn
 
 val IS_DISPLAY_INFO_SUPPORTED = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q
 
-interface TelephonyStatusListener : DefaultLifecycleObserver {
-    fun startListening()
-    fun stopListening()
+interface TelephonyStatusListener {
+    val flow: SharedFlow<TelephonyStatus>
     fun refresh()
-    fun setCallback(callback: (TelephonyStatus) -> Unit)
-    fun clearCallback()
-
-    override fun onStart(owner: LifecycleOwner) = startListening()
-    override fun onStop(owner: LifecycleOwner) = stopListening()
+    fun recheckPermissions()
 }
 
+@ExperimentalCoroutinesApi
 class TelephonyStatusListenerImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val telephonyManager: TelephonyManager,
-    private val subscriptionManager: SubscriptionManager
+    private val subscriptionManager: SubscriptionManager,
+    private val coroutineScope: CoroutineScope,
+    private val vibrationHelper: VibrationHelper
 ) : TelephonyStatusListener {
-    private val subscriptionMap = mutableMapOf<Int, TelephonyStatus.TelephonyData>()
-    private val telephonyManagerMap = mutableMapOf<Int, TelephonyManager>()
-    private val displayInfoListeners = mutableMapOf<Int, DisplayInfoListener>()
-    private val stateListeners = mutableMapOf<Int, StateListener>()
+    private val refreshFlow = RefreshFlow()
+    private val hasPermissions = MutableStateFlow(hasPhoneStatePermission())
 
-    private val status
-        get() = TelephonyStatus(subscriptionMap.values.sortedBy { it.subscription })
-
-    private var isListening = false
-    private var callback: ((TelephonyStatus) -> Unit)? = null
-
-    init {
-        refreshSubscriptions()
+    override fun refresh() {
+        refreshFlow.emit()
     }
 
-    private fun refreshSubscriptions() {
-        subscriptionMap.clear()
-        getSubscriptionIds().forEach {
-            val manager = telephonyManagerMap.getOrPut(
-                it,
-                { telephonyManager.createForSubscriptionId(it) }
-            )
-            val simInfo = SimInfo.getFromTelephonyManager(manager) ?: return@forEach
-            subscriptionMap[it] =
-                TelephonyStatus.TelephonyData(SubscriptionInfo.getForId(it), simInfo)
-        }
-        telephonyManagerMap.keys.forEach { subscriptionId ->
-            subscriptionId.takeIf { subscriptionMap.containsKey(it) }?.let {
-                removeListenersForSubscriptionId(it)
-            }
-        }
+    override fun recheckPermissions() {
+        hasPermissions.value = hasPhoneStatePermission()
     }
+
+    override val flow = callbackFlow {
+        val manager = FlowManager(this@callbackFlow)
+        manager.startListening()
+        awaitClose { manager.stopListening() }
+    }.shareIn(coroutineScope, SharingStarted.WhileSubscribed(5000L), 1)
+
+    fun hasPhoneStatePermission() = ContextCompat.checkSelfPermission(
+        context,
+        Manifest.permission.READ_PHONE_STATE
+    ) == PackageManager.PERMISSION_GRANTED
 
     @SuppressLint("MissingPermission")
     private fun getSubscriptionIds(): List<Int> {
@@ -113,133 +109,175 @@ class TelephonyStatusListenerImpl @Inject constructor(
         return ids.toList()
     }
 
-    override fun refresh() {
-        refreshSubscriptions()
-        update()
-        if (isListening) {
-            startListening()
-        }
-    }
+    private inner class FlowManager(
+        private val sendChannel: SendChannel<TelephonyStatus>
+    ) {
+        private var refreshJob: Job? = null
+        private val subscriptionMap = mutableMapOf<Int, TelephonyStatus.TelephonyData>()
+        private val telephonyManagerMap = mutableMapOf<Int, TelephonyManager>()
+        private val displayInfoListeners = mutableMapOf<Int, DisplayInfoListener>()
+        private val stateListeners = mutableMapOf<Int, StateListener>()
 
-    override fun startListening() {
-        subscriptionMap.keys.forEach { subscriptionId ->
-            addListenersForSubscriptionId(subscriptionId)
-        }
-        isListening = true
-    }
+        private val status
+            get() = TelephonyStatus(subscriptionMap.values.sortedBy { it.subscription })
 
-    override fun stopListening() {
-        subscriptionMap.keys.forEach { subscriptionId ->
-            removeListenersForSubscriptionId(subscriptionId)
-        }
-        isListening = false
-    }
+        private var isListening = false
 
-    private fun addListenersForSubscriptionId(subscriptionId: Int) {
-        val telephonyManager = telephonyManagerMap.get(subscriptionId) ?: return
-
-        stateListeners.computeIfAbsent(subscriptionId) {
-            val stateListener = StateListener(subscriptionId)
-            telephonyManager.listen(
-                stateListener,
-                PhoneStateListener.LISTEN_DATA_CONNECTION_STATE
-                    or PhoneStateListener.LISTEN_SERVICE_STATE
-                    or PhoneStateListener.LISTEN_SIGNAL_STRENGTHS
-            )
-            stateListener
-        }
-        displayInfoListeners.takeIf { IS_DISPLAY_INFO_SUPPORTED && hasPhoneStatePermission() }
-            ?.computeIfAbsent(subscriptionId) {
-                val displayInfoListener = DisplayInfoListener(subscriptionId)
-                telephonyManager.listen(
-                    displayInfoListener,
-                    PhoneStateListener.LISTEN_DISPLAY_INFO_CHANGED
-                )
-                displayInfoListener
+        fun startListening() {
+            subscriptionMap.keys.forEach { subscriptionId ->
+                addListenersForSubscriptionId(subscriptionId)
             }
-    }
-
-    private fun removeListenersForSubscriptionId(subscriptionId: Int) {
-        val telephonyManager = telephonyManagerMap[subscriptionId] ?: return
-
-        stateListeners.computeIfPresent(subscriptionId) { _, listener ->
-            telephonyManager.listen(listener, PhoneStateListener.LISTEN_NONE)
-            null
+            isListening = true
+            if (refreshJob == null) {
+                refreshJob = Job().also {
+                    coroutineScope.launch(it) { refreshFlow.collect { refresh() } }
+                    coroutineScope.launch(it) { hasPermissions.collect { startListening() } }
+                }
+            }
         }
-        displayInfoListeners.computeIfPresent(subscriptionId) { _, listener ->
-            telephonyManager.listen(listener, PhoneStateListener.LISTEN_NONE)
-            null
+
+        fun stopListening() {
+            subscriptionMap.keys.forEach { subscriptionId ->
+                removeListenersForSubscriptionId(subscriptionId)
+            }
+            isListening = false
+            refreshJob?.cancel()
+            refreshJob = null
         }
-    }
 
-    override fun setCallback(callback: (TelephonyStatus) -> Unit) {
-        this.callback = callback
-        update()
-    }
-
-    override fun clearCallback() {
-        callback = null
-    }
-
-    private fun hasPhoneStatePermission() = ContextCompat.checkSelfPermission(
-        context,
-        Manifest.permission.READ_PHONE_STATE
-    ) == PackageManager.PERMISSION_GRANTED
-
-    @SuppressLint("NewApi")
-    private fun updateDisplayInfo(subscriptionId: Int, telephonyDisplayInfo: TelephonyDisplayInfo) {
-        subscriptionMap.computeIfPresent(subscriptionId) { _, data ->
-            data.copy(
-                networkType = telephonyDisplayInfo.networkType,
-                overrideNetworkType = telephonyDisplayInfo.overrideNetworkType
-            )
+        fun refresh() {
+            vibrationHelper.tick()
+            refreshSubscriptions()
+            update()
+            if (isListening) {
+                startListening()
+            }
         }
-        update()
-    }
 
-    private fun updateNetworkState(subscriptionId: Int, state: Int, networkType: Int) {
-        subscriptionMap.computeIfPresent(subscriptionId) { _, data ->
-            data.copy(
-                networkState = state,
-                networkType = networkType
-            )
+        init {
+            refreshSubscriptions()
         }
-        update()
-    }
 
-    private fun updateServiceState(subscriptionId: Int, serviceState: ServiceState?) {
-        subscriptionMap.computeIfPresent(subscriptionId) { _, data ->
-            data.copy(serviceState = serviceState)
+        private fun refreshSubscriptions() {
+            subscriptionMap.clear()
+            getSubscriptionIds().forEach {
+                val manager = telephonyManagerMap.getOrPut(
+                    it,
+                    { telephonyManager.createForSubscriptionId(it) }
+                )
+                val simInfo = SimInfo.getFromTelephonyManager(manager) ?: return@forEach
+                subscriptionMap[it] =
+                    TelephonyStatus.TelephonyData(SubscriptionInfo.getForId(it), simInfo)
+            }
+            telephonyManagerMap.keys.forEach { subscriptionId ->
+                subscriptionId.takeIf { subscriptionMap.containsKey(it) }?.let {
+                    removeListenersForSubscriptionId(it)
+                }
+            }
         }
-        update()
-    }
 
-    private fun updateSignalStrength(subscriptionId: Int, signalStrength: SignalStrength?) {
-        subscriptionMap.computeIfPresent(subscriptionId) { _, data ->
-            data.copy(signalStrength = signalStrength)
+        private fun addListenersForSubscriptionId(subscriptionId: Int) {
+            val telephonyManager = telephonyManagerMap.get(subscriptionId) ?: return
+
+            stateListeners.computeIfAbsent(subscriptionId) {
+                // PhoneStateListener requires a Looper, so we have to construct it in main
+                val stateListener = runBlocking(Dispatchers.Main) {
+                    StateListener(subscriptionId)
+                }
+                telephonyManager.listen(
+                    stateListener,
+                    PhoneStateListener.LISTEN_DATA_CONNECTION_STATE
+                        or PhoneStateListener.LISTEN_SERVICE_STATE
+                        or PhoneStateListener.LISTEN_SIGNAL_STRENGTHS
+                )
+                stateListener
+            }
+            displayInfoListeners
+                .takeIf { IS_DISPLAY_INFO_SUPPORTED && hasPhoneStatePermission() }
+                ?.computeIfAbsent(subscriptionId) {
+                    // PhoneStateListener requires a Looper, so we have to construct it in main
+                    val displayInfoListener = runBlocking(Dispatchers.Main) {
+                        DisplayInfoListener(subscriptionId)
+                    }
+                    telephonyManager.listen(
+                        displayInfoListener,
+                        PhoneStateListener.LISTEN_DISPLAY_INFO_CHANGED
+                    )
+                    displayInfoListener
+                }
         }
-        update()
-    }
 
-    private fun update() {
-        callback?.invoke(status)
-    }
+        private fun removeListenersForSubscriptionId(subscriptionId: Int) {
+            val telephonyManager = telephonyManagerMap[subscriptionId] ?: return
 
-    private inner class DisplayInfoListener(private val subscriptionId: Int) :
-        PhoneStateListener() {
-        @SuppressLint("MissingPermission")
-        override fun onDisplayInfoChanged(telephonyDisplayInfo: TelephonyDisplayInfo) =
-            updateDisplayInfo(subscriptionId, telephonyDisplayInfo)
-    }
+            stateListeners.computeIfPresent(subscriptionId) { _, listener ->
+                telephonyManager.listen(listener, PhoneStateListener.LISTEN_NONE)
+                null
+            }
+            displayInfoListeners.computeIfPresent(subscriptionId) { _, listener ->
+                telephonyManager.listen(listener, PhoneStateListener.LISTEN_NONE)
+                null
+            }
+        }
 
-    private inner class StateListener(private val subscriptionId: Int) : PhoneStateListener() {
-        override fun onDataConnectionStateChanged(state: Int, networkType: Int) =
-            updateNetworkState(subscriptionId, state, networkType)
+        @SuppressLint("NewApi")
+        private fun updateDisplayInfo(
+            subscriptionId: Int,
+            telephonyDisplayInfo: TelephonyDisplayInfo
+        ) {
+            subscriptionMap.computeIfPresent(subscriptionId) { _, data ->
+                data.copy(
+                    networkType = telephonyDisplayInfo.networkType,
+                    overrideNetworkType = telephonyDisplayInfo.overrideNetworkType
+                )
+            }
+            update()
+        }
 
-        override fun onServiceStateChanged(serviceState: ServiceState?) =
-            updateServiceState(subscriptionId, serviceState)
+        private fun updateNetworkState(subscriptionId: Int, state: Int, networkType: Int) {
+            subscriptionMap.computeIfPresent(subscriptionId) { _, data ->
+                data.copy(
+                    networkState = state,
+                    networkType = networkType
+                )
+            }
+            update()
+        }
 
-        override fun onSignalStrengthsChanged(signalStrength: SignalStrength?) =
-            updateSignalStrength(subscriptionId, signalStrength)
+        private fun updateServiceState(subscriptionId: Int, serviceState: ServiceState?) {
+            subscriptionMap.computeIfPresent(subscriptionId) { _, data ->
+                data.copy(serviceState = serviceState)
+            }
+            update()
+        }
+
+        private fun updateSignalStrength(subscriptionId: Int, signalStrength: SignalStrength?) {
+            subscriptionMap.computeIfPresent(subscriptionId) { _, data ->
+                data.copy(signalStrength = signalStrength)
+            }
+            update()
+        }
+
+        private fun update() {
+            sendChannel.takeUnless { it.isClosedForSend }?.offer(status)
+        }
+
+        private inner class DisplayInfoListener(private val subscriptionId: Int) :
+            PhoneStateListener() {
+            @SuppressLint("MissingPermission")
+            override fun onDisplayInfoChanged(telephonyDisplayInfo: TelephonyDisplayInfo) =
+                updateDisplayInfo(subscriptionId, telephonyDisplayInfo)
+        }
+
+        private inner class StateListener(private val subscriptionId: Int) : PhoneStateListener() {
+            override fun onDataConnectionStateChanged(state: Int, networkType: Int) =
+                updateNetworkState(subscriptionId, state, networkType)
+
+            override fun onServiceStateChanged(serviceState: ServiceState?) =
+                updateServiceState(subscriptionId, serviceState)
+
+            override fun onSignalStrengthsChanged(signalStrength: SignalStrength?) =
+                updateSignalStrength(subscriptionId, signalStrength)
+        }
     }
 }

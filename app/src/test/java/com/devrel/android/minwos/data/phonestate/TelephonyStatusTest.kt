@@ -16,23 +16,40 @@
 
 package com.devrel.android.minwos.data.phonestate
 
+import android.os.Build
+import android.telephony.AccessNetworkConstants
+import android.telephony.NetworkRegistrationInfo
 import android.telephony.ServiceState
 import android.telephony.TelephonyDisplayInfo
 import android.telephony.TelephonyManager
+import com.devrel.android.minwos.TestUtil
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 
 class TelephonyStatusTest {
-    private val baseTelephonyData =
-        TelephonyStatus.TelephonyData(SubscriptionInfo(1, 0), SimInfo("", ""))
+    private val baseTelephonyData = TelephonyStatus.TelephonyData(
+        SubscriptionInfo(1, 0), SimInfo("", "")
+    )
+
+    @Before
+    fun setUp() {
+        TestUtil.setVersionSdkInt(Build.VERSION_CODES.R)
+    }
+
+    @After
+    fun tearDown() {
+        TestUtil.resetVersionSdkInt()
+    }
 
     @Test
     fun `uses data from TelephonyDisplayInfo`() {
         var underTest = baseTelephonyData
         assertThat(underTest.networkTypeString).isEqualTo("UNKNOWN")
-        assertThat(underTest.overrideNetworkTypeString).isEqualTo("UNKNOWN")
+        assertThat(underTest.overrideNetworkTypeString).isEqualTo(null)
 
         underTest = baseTelephonyData.copy(
             networkType = TelephonyManager.NETWORK_TYPE_CDMA,
@@ -59,14 +76,23 @@ class TelephonyStatusTest {
     fun `parses string from ServiceState`() {
         val base = baseTelephonyData
         val serviceState = mock(ServiceState::class.java)
+        val networkRegistrationInfo = mock(NetworkRegistrationInfo::class.java)
+        `when`(networkRegistrationInfo.transportType)
+            .thenReturn(AccessNetworkConstants.TRANSPORT_TYPE_WWAN)
+        `when`(networkRegistrationInfo.domain)
+            .thenReturn(NetworkRegistrationInfo.DOMAIN_PS)
+        `when`(serviceState.networkRegistrationInfoList).thenReturn(listOf(networkRegistrationInfo))
 
-        `when`(serviceState.toString()).thenReturn("nrState=NOT_RESTRICTED nrState=CONNECTED")
+        `when`(networkRegistrationInfo.toString())
+            .thenReturn("nrState=NOT_RESTRICTED nrState=CONNECTED")
         assertThat(base.copy(serviceState = serviceState).nrState).isEqualTo("CONNECTED")
 
-        `when`(serviceState.toString()).thenReturn("nrState=NOT_RESTRICTED")
+        `when`(networkRegistrationInfo.toString())
+            .thenReturn("nrState=NOT_RESTRICTED")
         assertThat(base.copy(serviceState = serviceState).nrState).isEqualTo("NOT_RESTRICTED")
 
-        `when`(serviceState.toString()).thenReturn("lorem ipsum")
-        assertThat(base.copy(serviceState = serviceState).nrState).isEqualTo("UNKNOWN")
+        `when`(networkRegistrationInfo.toString())
+            .thenReturn("lorem ipsum")
+        assertThat(base.copy(serviceState = serviceState).nrState).isEqualTo(null)
     }
 }

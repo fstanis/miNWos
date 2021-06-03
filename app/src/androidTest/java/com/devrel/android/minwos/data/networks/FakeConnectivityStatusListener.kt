@@ -17,22 +17,14 @@
 package com.devrel.android.minwos.data.networks
 
 import android.net.LinkProperties
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.runBlocking
 
 class FakeConnectivityStatusListener : ConnectivityStatusListener {
-    var connectivityCallback: ((ConnectivityStatus) -> Unit)? = null
+    override val flow = MutableSharedFlow<ConnectivityStatus>()
 
-    override fun setCallback(callback: (ConnectivityStatus) -> Unit) {
-        connectivityCallback = callback
-    }
-
-    override fun clearCallback() {
-        connectivityCallback = null
-    }
-
-    override fun startListening() {}
-    override fun stopListening() {}
-    override fun refresh() {
-        connectivityCallback?.invoke(
+    override fun refresh() = runBlocking {
+        flow.emit(
             ConnectivityStatus(
                 null,
                 listOf(

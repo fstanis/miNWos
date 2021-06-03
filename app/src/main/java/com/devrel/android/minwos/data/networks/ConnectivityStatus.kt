@@ -27,6 +27,10 @@ data class ConnectivityStatus(
     // ensure default network is first, if set
     val networks = defaultNetwork?.let { listOf(it).union(allNetworks).toList() } ?: allNetworks
 
+    companion object {
+        val EMPTY = ConnectivityStatus(null, listOf())
+    }
+
     data class NetworkData(
         val id: Int,
         val networkCapabilities: NetworkCapabilities? = null,

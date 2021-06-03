@@ -44,6 +44,8 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.allOf
 import org.junit.Before
 import org.junit.Rule
@@ -70,8 +72,8 @@ class PhoneStateFragmentTest {
     val telephonyStatusListener: TelephonyStatusListener = FakeTelephonyStatusListener()
 
     private val baseTelephonyData = TelephonyData(SubscriptionInfo(1, 0), SimInfo("", ""))
-    private val telephonyCallback get() =
-        (telephonyStatusListener as FakeTelephonyStatusListener).telephonyCallback
+    private val sharedFlow
+        get() = telephonyStatusListener.flow as MutableSharedFlow<TelephonyStatus>
 
     @Before
     fun setUp() {
@@ -84,11 +86,11 @@ class PhoneStateFragmentTest {
     }
 
     @Test
-    fun displaysPhoneState() {
+    fun displaysPhoneState() = runBlocking {
         val data1 = baseTelephonyData.copy(networkType = TelephonyManager.NETWORK_TYPE_EDGE)
         val data2 = baseTelephonyData.copy(networkType = TelephonyManager.NETWORK_TYPE_LTE)
         onView(withId(R.id.telephonyRecyclerView)).check(matches(hasChildCount(0)))
-        telephonyCallback?.invoke(TelephonyStatus(listOf(data1, data2)))
+        sharedFlow.emit(TelephonyStatus(listOf(data1, data2)))
         onView(withId(R.id.telephonyRecyclerView)).check(
             matches(
                 allOf(
@@ -98,6 +100,7 @@ class PhoneStateFragmentTest {
                 )
             )
         )
+        Unit
     }
 
     @Test
