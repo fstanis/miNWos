@@ -86,6 +86,8 @@ data class TelephonyStatus(
     }
 
     companion object {
+        val EMPTY = TelephonyStatus(listOf())
+
         private fun networkTypeToString(networkType: Int): String =
             when (networkType) {
                 TelephonyManager.NETWORK_TYPE_UNKNOWN -> "UNKNOWN"

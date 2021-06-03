@@ -42,6 +42,8 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.allOf
 import org.junit.Before
 import org.junit.Rule
@@ -67,8 +69,8 @@ class NetworksFragmentTest {
     @BindValue
     val telephonyStatusListener: TelephonyStatusListener = FakeTelephonyStatusListener()
 
-    private val connectivityCallback get() =
-        (connectivityStatusListener as FakeConnectivityStatusListener).connectivityCallback
+    private val sharedFlow
+        get() = connectivityStatusListener.flow as MutableSharedFlow<ConnectivityStatus>
 
     @Before
     fun setUp() {
@@ -81,13 +83,13 @@ class NetworksFragmentTest {
     }
 
     @Test
-    fun displaysNetworks() {
+    fun displaysNetworks() = runBlocking {
         val network1 =
             NetworkData(0, linkProperties = LinkProperties().apply { interfaceName = "test0" })
         val network2 =
             NetworkData(1, linkProperties = LinkProperties().apply { interfaceName = "test1" })
         onView(withId(R.id.networksRecyclerView)).check(matches(hasChildCount(0)))
-        connectivityCallback?.invoke(ConnectivityStatus(null, listOf(network1, network2)))
+        sharedFlow.emit(ConnectivityStatus(null, listOf(network1, network2)))
         onView(withId(R.id.networksRecyclerView)).check(
             matches(
                 allOf(
@@ -97,7 +99,7 @@ class NetworksFragmentTest {
                 )
             )
         )
-        connectivityCallback?.invoke(ConnectivityStatus(network2, listOf(network1, network2)))
+        sharedFlow.emit(ConnectivityStatus(network2, listOf(network1, network2)))
         onView(withId(R.id.networksRecyclerView)).check(
             matches(
                 allOf(
@@ -107,6 +109,7 @@ class NetworksFragmentTest {
                 )
             )
         )
+        Unit
     }
 
     @Test

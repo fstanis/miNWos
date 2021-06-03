@@ -29,12 +29,17 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.devrel.android.minwos.R
 import com.devrel.android.minwos.data.phonestate.IS_DISPLAY_INFO_SUPPORTED
 import com.devrel.android.minwos.databinding.FragmentPhonestateBinding
 import com.devrel.android.minwos.ui.help.HelpDialog
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PhoneStateFragment : Fragment() {
@@ -75,18 +80,15 @@ class PhoneStateFragment : Fragment() {
             layoutManager = viewManager
             adapter = viewAdapter
         }
-        viewModel.telephonyStatus.observe(
-            viewLifecycleOwner,
-            { telephonyStatus ->
-                viewAdapter.submitList(telephonyStatus.subscriptions)
-            }
-        )
-        viewModel.permissionsGranted.observe(
-            viewLifecycleOwner,
-            { isGranted ->
-                binding.permissionsWarning.takeIf { isGranted }?.visibility = View.GONE
-            }
-        )
+        lifecycleScope.launch {
+            viewModel.state.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collect { state ->
+                    viewAdapter.submitList(state.telephonyStatus.subscriptions)
+                    if (state.permissionsGranted) {
+                        binding.permissionsWarning.visibility = View.GONE
+                    }
+                }
+        }
     }
 
     override fun onStart() {

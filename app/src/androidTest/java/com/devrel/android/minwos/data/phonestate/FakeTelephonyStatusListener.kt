@@ -16,21 +16,14 @@
 
 package com.devrel.android.minwos.data.phonestate
 
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.runBlocking
+
 class FakeTelephonyStatusListener : TelephonyStatusListener {
-    var telephonyCallback: ((TelephonyStatus) -> Unit)? = null
+    override val flow = MutableSharedFlow<TelephonyStatus>()
 
-    override fun setCallback(callback: (TelephonyStatus) -> Unit) {
-        telephonyCallback = callback
-    }
-
-    override fun clearCallback() {
-        telephonyCallback = null
-    }
-
-    override fun startListening() {}
-    override fun stopListening() {}
-    override fun refresh() {
-        telephonyCallback?.invoke(
+    override fun refresh() = runBlocking {
+        flow.emit(
             TelephonyStatus(
                 listOf(
                     TelephonyStatus.TelephonyData(SubscriptionInfo(99, 0), SimInfo("", "refresh"))
@@ -38,4 +31,6 @@ class FakeTelephonyStatusListener : TelephonyStatusListener {
             )
         )
     }
+
+    override fun recheckPermissions() {}
 }
