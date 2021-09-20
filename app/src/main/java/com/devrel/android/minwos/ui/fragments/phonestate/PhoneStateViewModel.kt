@@ -16,39 +16,41 @@
 
 package com.devrel.android.minwos.ui.fragments.phonestate
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.devrel.android.minwos.data.phonestate.TelephonyStatus
 import com.devrel.android.minwos.data.phonestate.TelephonyStatusListener
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 
 @HiltViewModel
 class PhoneStateViewModel @Inject constructor(
     private val telephonyStatusListener: TelephonyStatusListener
 ) : ViewModel() {
-    private val telephonyStatusMutable = MutableLiveData<TelephonyStatus>()
-    val telephonyStatus: LiveData<TelephonyStatus> get() = telephonyStatusMutable
+    private val permissionsGrantedFlow = MutableStateFlow(false)
 
-    private val permissionsGrantedMutable = MutableLiveData<Boolean>(false)
-    val permissionsGranted: LiveData<Boolean> get() = permissionsGrantedMutable
-
-    init {
-        telephonyStatusListener.setCallback { telephonyStatusMutable.postValue(it) }
-    }
+    val state =
+        telephonyStatusListener.flow.combine(permissionsGrantedFlow) { status, permissions ->
+            State(status, permissions)
+        }.stateIn(
+            viewModelScope,
+            WhileSubscribed(),
+            State()
+        )
 
     fun refresh() = telephonyStatusListener.refresh()
 
     fun updatePermissions(granted: Boolean) {
-        if (granted) {
-            telephonyStatusListener.startListening()
-        }
-        permissionsGrantedMutable.postValue(granted)
+        permissionsGrantedFlow.value = granted
+        telephonyStatusListener.recheckPermissions()
     }
 
-    override fun onCleared() {
-        telephonyStatusListener.clearCallback()
-        super.onCleared()
-    }
+    data class State(
+        val telephonyStatus: TelephonyStatus = TelephonyStatus.EMPTY,
+        val permissionsGranted: Boolean = false
+    )
 }

@@ -30,6 +30,9 @@
     <!-- Required to read TelephonyDisplayInfo -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
+    <!-- Refreshing causes a small tick vibration -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <!-- Not used, make sure they aren't included -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
