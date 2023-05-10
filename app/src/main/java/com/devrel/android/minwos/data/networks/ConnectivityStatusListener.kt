@@ -161,7 +161,7 @@ class ConnectivityStatusListenerImpl @Inject constructor(
         }
 
         private fun update() {
-            sendChannel.takeUnless { it.isClosedForSend }?.offer(networks)
+            sendChannel.takeUnless { it.isClosedForSend }?.trySend(networks)
         }
 
         private val networkCallback = object : ConnectivityManager.NetworkCallback() {

@@ -259,23 +259,27 @@ class TelephonyStatusListenerImpl @Inject constructor(
         }
 
         private fun update() {
-            sendChannel.takeUnless { it.isClosedForSend }?.offer(status)
+            sendChannel.takeUnless { it.isClosedForSend }?.trySend(status)
         }
 
         private inner class DisplayInfoListener(private val subscriptionId: Int) :
             PhoneStateListener() {
+            @Deprecated("Deprecated in Java")
             @SuppressLint("MissingPermission")
             override fun onDisplayInfoChanged(telephonyDisplayInfo: TelephonyDisplayInfo) =
                 updateDisplayInfo(subscriptionId, telephonyDisplayInfo)
         }
 
         private inner class StateListener(private val subscriptionId: Int) : PhoneStateListener() {
+            @Deprecated("Deprecated in Java")
             override fun onDataConnectionStateChanged(state: Int, networkType: Int) =
                 updateNetworkState(subscriptionId, state, networkType)
 
+            @Deprecated("Deprecated in Java")
             override fun onServiceStateChanged(serviceState: ServiceState?) =
                 updateServiceState(subscriptionId, serviceState)
 
+            @Deprecated("Deprecated in Java")
             override fun onSignalStrengthsChanged(signalStrength: SignalStrength?) =
                 updateSignalStrength(subscriptionId, signalStrength)
         }

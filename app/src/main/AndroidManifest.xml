@@ -16,8 +16,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.devrel.android.minwos">
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- Required to use NetworkCallback -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -26,6 +25,7 @@
 
     <!-- Required for persistent notification -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- Required to read TelephonyDisplayInfo -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -49,7 +49,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.MainActivity">
+        <activity android:name=".ui.MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

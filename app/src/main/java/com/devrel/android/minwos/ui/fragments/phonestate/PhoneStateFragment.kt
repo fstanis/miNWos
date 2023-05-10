@@ -112,6 +112,7 @@ class PhoneStateFragment : Fragment() {
         helpDialog.show()
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onOptionsItemSelected(item: MenuItem) =
         when (item.itemId) {
             R.id.action_help -> {
@@ -125,6 +126,7 @@ class PhoneStateFragment : Fragment() {
             else -> false
         }
 
+    @Deprecated("Deprecated in Java")
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         menu.clear()
