@@ -5,8 +5,6 @@
 miNWos is a simple Android app that can be used to list all networks your device
 is connected to and display useful information about them, such as meteredness.
 
-The latest version is [available in the Google Play Store](https://play.google.com/store/apps/details?id=com.devrel.android.minwos).
-
 ## Usage
 
 When launched, miNWos displays all the networks currently available to your

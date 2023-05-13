@@ -25,13 +25,13 @@ android {
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.devrel.android.minwos"
+        applicationId "me.stanis.apps.minwos"
         minSdkVersion 26
         targetSdkVersion 33
         versionCode 310
         versionName "3.1"
 
-        testInstrumentationRunner 'com.devrel.android.minwos.TestRunner'
+        testInstrumentationRunner 'me.stanis.apps.minwos.TestRunner'
     }
 
     buildTypes {
@@ -54,7 +54,7 @@ android {
         jvmTarget = JavaVersion.VERSION_11.majorVersion
     }
 
-    namespace 'com.devrel.android.minwos'
+    namespace 'me.stanis.apps.minwos'
 }
 
 dependencies {
