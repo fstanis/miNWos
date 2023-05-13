@@ -18,6 +18,7 @@ package com.devrel.android.minwos.ui.fragments.networks
 
 import com.devrel.android.minwos.data.networks.ConnectivityStatus
 import com.devrel.android.minwos.data.networks.ConnectivityStatusListener
+import com.devrel.android.minwos.ui.util.VibrationHelper
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -31,6 +32,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
+import org.mockito.Mockito.mock
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
@@ -38,6 +40,8 @@ import org.mockito.MockitoAnnotations
 class NetworksViewModelTest {
     @Mock
     lateinit var connectivityListener: ConnectivityStatusListener
+
+    private val vibrationHelper = mock(VibrationHelper::class.java)
 
     private val mainThreadSurrogate = newSingleThreadContext("UI thread")
 
@@ -55,7 +59,7 @@ class NetworksViewModelTest {
 
     @Test
     fun `refresh refreshes everything`() {
-        val underTest = NetworksViewModel(connectivityListener)
+        val underTest = NetworksViewModel(connectivityListener, vibrationHelper)
 
         underTest.refresh()
         verify(connectivityListener, times(1)).refresh()
@@ -64,10 +68,13 @@ class NetworksViewModelTest {
     @Test
     fun `ConnectivityStatus in StateFlow`() = runBlocking {
         val flow = MutableSharedFlow<ConnectivityStatus>(1)
-        val underTest = NetworksViewModel(object : ConnectivityStatusListener {
-            override val flow get() = flow
-            override fun refresh() {}
-        })
+        val underTest = NetworksViewModel(
+            object : ConnectivityStatusListener {
+                override val flow get() = flow
+                override fun refresh() = true
+            },
+            vibrationHelper,
+        )
         val status = ConnectivityStatus(null, listOf(ConnectivityStatus.NetworkData(1)))
         assertThat(underTest.connectivityStatus.value).isNotSameInstanceAs(status)
         flow.emit(status)

@@ -22,7 +22,7 @@ import android.net.NetworkCapabilities
 
 data class ConnectivityStatus(
     val defaultNetwork: NetworkData?,
-    private val allNetworks: List<NetworkData>
+    private val allNetworks: List<NetworkData>,
 ) {
     // ensure default network is first, if set
     val networks = defaultNetwork?.let { listOf(it).union(allNetworks).toList() } ?: allNetworks
@@ -35,13 +35,13 @@ data class ConnectivityStatus(
         val id: Int,
         val networkCapabilities: NetworkCapabilities? = null,
         val linkProperties: LinkProperties? = null,
-        val isBlocked: Boolean = false
+        val isBlocked: Boolean = false,
     ) : Comparable<NetworkData> {
         constructor(
             network: Network,
             networkCapabilities: NetworkCapabilities? = null,
             linkProperties: LinkProperties? = null,
-            isBlocked: Boolean = false
+            isBlocked: Boolean = false,
         ) : this(network.hashCode(), networkCapabilities, linkProperties, isBlocked)
 
         val name = linkProperties?.interfaceName ?: "<unknown>"
@@ -54,7 +54,7 @@ data class ConnectivityStatus(
             networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
         val isTemporarilyNotMetered =
             networkCapabilities?.hasCapability(
-                NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED
+                NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED,
             )
 
         override fun compareTo(other: NetworkData): Int = name.compareTo(other.name)

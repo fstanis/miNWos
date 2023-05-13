@@ -17,38 +17,40 @@
 package com.devrel.android.minwos.data.util
 
 import android.os.SystemClock
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
-/** A special type of hot flow that prevents "refresh spam" by dismissing refreshes emitted in a
- *  short time period after the last accepted refresh.
+/**
+ * A special type of hot flow that prevents "refresh spam" by dismissing refreshes emitted in a
+ * short time period after the last accepted refresh.
  */
-class RefreshFlow(
-    private val debounceTimeMillis: Long = 5_000L,
-    private inline val getElapsedTime: () -> Long = { SystemClock.elapsedRealtime() }
-) {
-    private val backingFlow = MutableSharedFlow<Long>(0, 1, BufferOverflow.DROP_LATEST)
+class RefreshFlow(private val throttlePeriod: Duration = DEFAULT_THROTTLE_PERIOD) : Flow<Unit> {
+    private val backingFlow = MutableSharedFlow<Unit>(replay = 1).also { it.tryEmit(Unit) }
 
-    fun emit() {
-        backingFlow.tryEmit(getElapsedTime())
+    fun tryEmit() = backingFlow.tryEmit(Unit)
+
+    override suspend fun collect(collector: FlowCollector<Unit>) =
+        backingFlow.throttle(throttlePeriod).collect(collector)
+
+    companion object {
+        private val DEFAULT_THROTTLE_PERIOD = 5.seconds
     }
+}
 
-    suspend fun collect(collector: FlowCollector<Unit>) {
-        backingFlow.collect { timestamp ->
-            // dismiss a buffered refresh that hasn't been accepted by any collector
-            if (getElapsedTime() - timestamp <= 500) {
-                collector.emit(Unit)
-                // suspend refreshing for a few seconds to prevent spam
-                delay(debounceTimeMillis)
-            }
+/**
+ * Drops emissions collected within [periodMillis] after the last emission.
+ */
+fun <T> Flow<T>.throttle(period: Duration): Flow<T> = flow {
+    var lastTime = 0L
+    collect { value ->
+        val elapsedRealtime = SystemClock.elapsedRealtime()
+        if (elapsedRealtime - lastTime >= period.inWholeMilliseconds) {
+            lastTime = elapsedRealtime
+            emit(value)
         }
     }
-
-    suspend inline fun collect(crossinline action: suspend () -> Unit): Unit =
-        collect(object : FlowCollector<Unit> {
-            override suspend fun emit(value: Unit) = action()
-        })
 }

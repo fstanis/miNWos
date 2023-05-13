@@ -33,7 +33,8 @@ class HelpDialog(context: Context, title: String, htmlMessage: String) : AlertDi
         val message = HtmlCompat.fromHtml(htmlMessage, HtmlCompat.FROM_HTML_MODE_LEGACY)
         setMessage(message)
         setButton(
-            DialogInterface.BUTTON_POSITIVE, context.getString(R.string.button_ok)
+            DialogInterface.BUTTON_POSITIVE,
+            context.getString(R.string.button_ok),
         ) { dialog, _ -> dialog.dismiss() }
     }
 

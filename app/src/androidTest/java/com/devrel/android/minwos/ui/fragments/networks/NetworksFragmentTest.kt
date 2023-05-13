@@ -95,9 +95,9 @@ class NetworksFragmentTest {
                 allOf(
                     hasChildCount(2),
                     hasDescendant(withText("test0")),
-                    hasDescendant(withText("test1"))
-                )
-            )
+                    hasDescendant(withText("test1")),
+                ),
+            ),
         )
         sharedFlow.emit(ConnectivityStatus(network2, listOf(network1, network2)))
         onView(withId(R.id.networksRecyclerView)).check(
@@ -105,9 +105,9 @@ class NetworksFragmentTest {
                 allOf(
                     hasChildCount(2),
                     hasDescendant(withText("test1 (default)")),
-                    hasDescendant(withText("test0"))
-                )
-            )
+                    hasDescendant(withText("test0")),
+                ),
+            ),
         )
         Unit
     }
@@ -119,9 +119,9 @@ class NetworksFragmentTest {
             matches(
                 allOf(
                     hasChildCount(1),
-                    hasDescendant(withText("refresh"))
-                )
-            )
+                    hasDescendant(withText("refresh")),
+                ),
+            ),
         )
     }
 }

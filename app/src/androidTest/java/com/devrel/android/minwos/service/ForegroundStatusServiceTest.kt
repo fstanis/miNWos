@@ -88,8 +88,8 @@ class ForegroundStatusServiceTest {
     private fun notificationExists() =
         uiDevice.wait(
             Until.hasObject(
-                By.res(context.resources.getResourceName(R.id.defaultNetworkNotification))
+                By.res(context.resources.getResourceName(R.id.defaultNetworkNotification)),
             ),
-            2000
+            2000,
         )
 }

@@ -26,10 +26,10 @@ data class SubscriptionInfo(
     val isDefaultSms: Boolean = false,
     val isDefaultData: Boolean = false,
     val isDefaultVoice: Boolean = false,
-    val isActiveData: Boolean? = false
+    val isActiveData: Boolean? = false,
 ) : Comparable<SubscriptionInfo> {
     companion object {
-        fun getForId(id: Int) =
+        fun forId(id: Int) =
             SubscriptionInfo(
                 id = id,
                 simSlot = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -45,7 +45,7 @@ data class SubscriptionInfo(
                     SubscriptionManager.getActiveDataSubscriptionId() == id
                 } else {
                     null
-                }
+                },
             )
     }
 

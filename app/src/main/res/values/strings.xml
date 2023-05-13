@@ -23,11 +23,17 @@
     <string name="state_unknown">\u2754 UNKNOWN</string>
     <string name="default_network_template">%1$s (default)</string>
     <string name="cap_not_metered">NOT_METERED</string>
+    <string name="cap_not_metered_short">not mtrd</string>
     <string name="cap_temp_not_metered">TEMPORARILY_NOT_METERED</string>
+    <string name="cap_temp_not_metered_short">tmp not mtrd</string>
     <string name="internet_access">Internet access</string>
+    <string name="internet_access_short">internet</string>
     <string name="cellular_connection">Cellular connection</string>
+    <string name="cellular_connection_short">cellular</string>
     <string name="download_bandwidth">Download bandwidth</string>
+    <string name="download_bandwidth_short">down bw</string>
     <string name="upload_bandwidth">Upload bandwidth</string>
+    <string name="upload_bandwidth_short">up bw</string>
     <string name="bandwidth_kbps">%1$d kbps</string>
     <string name="bandwidth_mbps">%1$.2f Mbps</string>
     <string name="frequency_khz">%1$d kHz</string>
@@ -51,4 +57,5 @@
     <string name="sim_carrier">SIM carrier</string>
     <string name="cell_bandwidths">Cell bandwidth(s)</string>
     <string name="signal_strengths">Signal strength(s)</string>
+    <string name="dismiss">Dismiss</string>
 </resources>

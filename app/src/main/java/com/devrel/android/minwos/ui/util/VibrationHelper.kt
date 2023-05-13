@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.devrel.android.minwos.data.util
+package com.devrel.android.minwos.ui.util
 
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -22,7 +22,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class VibrationHelper @Inject constructor(private val vibrator: Vibrator) {
+open class VibrationHelper @Inject constructor(private val vibrator: Vibrator) {
     private val tickEffect = VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE)!!
 
     fun tick() = vibrator.vibrate(tickEffect)

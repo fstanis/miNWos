@@ -29,11 +29,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.HiltAndroidApp
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 
 @HiltAndroidApp
 class App : Application()
@@ -60,12 +55,4 @@ object AppModule {
     @Provides
     fun provideVibrator(@ApplicationContext context: Context) =
         context.getSystemService(Vibrator::class.java)!!
-
-    @Provides
-    fun provideDispatcher() = Dispatchers.Default
-
-    @Provides
-    @Singleton
-    fun provideCoroutineScope(coroutineDispatcher: CoroutineDispatcher): CoroutineScope =
-        CoroutineScope(SupervisorJob() + coroutineDispatcher)
 }

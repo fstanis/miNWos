@@ -33,7 +33,7 @@ import com.devrel.android.minwos.ui.util.formatFrequency
 
 class TelephonyStatusAdapter :
     ListAdapter<TelephonyStatus.TelephonyData, TelephonyStatusAdapter.ViewHolder>
-    (TelephonyStatus.TelephonyData.diffUtil) {
+        (TelephonyStatus.TelephonyData.diffUtil) {
     inner class ViewHolder(private val binding: ItemTelephonyBinding) :
         RecyclerView.ViewHolder(binding.root) {
         private val context = binding.root.context
@@ -53,14 +53,14 @@ class TelephonyStatusAdapter :
             }
             binding.simCarrier.text =
                 telephonyData.sim.carrierName?.let { "$it (${telephonyData.sim.carrierId})" }
-                ?: getString(R.string.state_unknown)
+                    ?: getString(R.string.state_unknown)
             binding.networkType.text = telephonyData.networkTypeString
             binding.cellBandwidths.text =
                 telephonyData.cellBandwidths?.joinToString("\n") { formatFrequency(it) }
-                ?: getString(R.string.state_unknown)
+                    ?: getString(R.string.state_unknown)
             binding.signalStrengths.text =
                 telephonyData.signalStrengths?.joinToString("\n")
-                ?: getString(R.string.state_unknown)
+                    ?: getString(R.string.state_unknown)
             binding.networkState.text = telephonyData.networkStateString
             binding.nrState.text = telephonyData.nrState ?: getString(R.string.state_unknown)
             binding.overrideNetworkType.text =
@@ -74,7 +74,7 @@ class TelephonyStatusAdapter :
                 } else {
                     R.string.subscription_template
                 },
-                subscription.id
+                subscription.id,
             )
 
         private fun getColor(subscription: SubscriptionInfo) =

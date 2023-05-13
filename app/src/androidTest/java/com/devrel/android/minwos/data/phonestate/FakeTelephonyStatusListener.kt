@@ -26,11 +26,10 @@ class FakeTelephonyStatusListener : TelephonyStatusListener {
         flow.emit(
             TelephonyStatus(
                 listOf(
-                    TelephonyStatus.TelephonyData(SubscriptionInfo(99, 0), SimInfo("", "refresh"))
-                )
-            )
+                    TelephonyStatus.TelephonyData(SubscriptionInfo(99, 0), SimInfo("", "refresh")),
+                ),
+            ),
         )
+        true
     }
-
-    override fun recheckPermissions() {}
 }

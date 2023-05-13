@@ -38,7 +38,6 @@ import com.devrel.android.minwos.data.phonestate.IS_DISPLAY_INFO_SUPPORTED
 import com.devrel.android.minwos.databinding.FragmentPhonestateBinding
 import com.devrel.android.minwos.ui.help.HelpDialog
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -50,14 +49,14 @@ class PhoneStateFragment : Fragment() {
         HelpDialog(
             requireContext(),
             getString(R.string.title_phone_state),
-            getString(R.string.help_phone_state)
+            getString(R.string.help_phone_state),
         )
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         setHasOptionsMenu(true)
@@ -97,8 +96,8 @@ class PhoneStateFragment : Fragment() {
             viewModel.updatePermissions(
                 ActivityCompat.checkSelfPermission(
                     requireContext(),
-                    READ_PHONE_STATE
-                ) == PackageManager.PERMISSION_GRANTED
+                    READ_PHONE_STATE,
+                ) == PackageManager.PERMISSION_GRANTED,
             )
         }
     }
@@ -119,10 +118,12 @@ class PhoneStateFragment : Fragment() {
                 showHelp()
                 true
             }
+
             R.id.action_refresh -> {
                 viewModel.refresh()
                 true
             }
+
             else -> false
         }
 

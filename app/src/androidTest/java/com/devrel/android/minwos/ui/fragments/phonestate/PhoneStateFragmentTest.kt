@@ -96,9 +96,9 @@ class PhoneStateFragmentTest {
                 allOf(
                     hasChildCount(2),
                     hasDescendant(withText("EDGE")),
-                    hasDescendant(withText("LTE"))
-                )
-            )
+                    hasDescendant(withText("LTE")),
+                ),
+            ),
         )
         Unit
     }
@@ -110,9 +110,9 @@ class PhoneStateFragmentTest {
             matches(
                 allOf(
                     hasChildCount(1),
-                    hasDescendant(withText("Subscription #99"))
-                )
-            )
+                    hasDescendant(withText("Subscription #99")),
+                ),
+            ),
         )
     }
 }

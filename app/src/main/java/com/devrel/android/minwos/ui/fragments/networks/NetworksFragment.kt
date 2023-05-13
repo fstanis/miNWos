@@ -16,7 +16,10 @@
 
 package com.devrel.android.minwos.ui.fragments.networks
 
+import android.Manifest.permission.POST_NOTIFICATIONS
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -24,19 +27,20 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat.startForegroundService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.devrel.android.minwos.R
 import com.devrel.android.minwos.databinding.FragmentNetworksBinding
 import com.devrel.android.minwos.service.ForegroundStatusService
 import com.devrel.android.minwos.ui.help.HelpDialog
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -48,14 +52,14 @@ class NetworksFragment : Fragment() {
         HelpDialog(
             requireContext(),
             getString(R.string.title_networks),
-            getString(R.string.help_networks)
+            getString(R.string.help_networks),
         )
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         setHasOptionsMenu(true)
@@ -73,15 +77,35 @@ class NetworksFragment : Fragment() {
             adapter = viewAdapter
         }
         lifecycleScope.launch {
-            viewModel.connectivityStatus.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
-                .collect { networkStatus ->
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.connectivityStatus.collect { networkStatus ->
                     viewAdapter.connectivityStatus = networkStatus
                 }
+            }
         }
     }
 
     private fun showHelp() {
         helpDialog.show()
+    }
+
+    private fun tryToggleService() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ActivityCompat.checkSelfPermission(
+                requireContext(),
+                POST_NOTIFICATIONS,
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionCheck.launch(POST_NOTIFICATIONS)
+            return
+        }
+        toggleService()
+    }
+
+    private fun toggleService() {
+        val intent = Intent(requireContext(), ForegroundStatusService::class.java)
+        intent.action = ForegroundStatusService.ACTION_TOGGLE_FOREGROUND_SERVICE
+        startForegroundService(requireContext(), intent)
     }
 
     @Deprecated("Deprecated in Java")
@@ -91,16 +115,17 @@ class NetworksFragment : Fragment() {
                 showHelp()
                 true
             }
+
             R.id.action_refresh -> {
                 viewModel.refresh()
                 true
             }
+
             R.id.action_notification -> {
-                val intent = Intent(requireContext(), ForegroundStatusService::class.java)
-                intent.action = ForegroundStatusService.ACTION_TOGGLE_FOREGROUND_SERVICE
-                startForegroundService(requireContext(), intent)
+                tryToggleService()
                 true
             }
+
             else -> false
         }
 
@@ -110,4 +135,11 @@ class NetworksFragment : Fragment() {
         menu.clear()
         inflater.inflate(R.menu.action_menu_networks, menu)
     }
+
+    private val permissionCheck =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                toggleService()
+            }
+        }
 }
