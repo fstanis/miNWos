@@ -20,16 +20,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.devrel.android.minwos.data.phonestate.TelephonyStatus
 import com.devrel.android.minwos.data.phonestate.TelephonyStatusListener
+import com.devrel.android.minwos.ui.util.VibrationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
 
 @HiltViewModel
 class PhoneStateViewModel @Inject constructor(
-    private val telephonyStatusListener: TelephonyStatusListener
+    private val telephonyStatusListener: TelephonyStatusListener,
+    private val vibrationHelper: VibrationHelper,
 ) : ViewModel() {
     private val permissionsGrantedFlow = MutableStateFlow(false)
 
@@ -38,19 +40,23 @@ class PhoneStateViewModel @Inject constructor(
             State(status, permissions)
         }.stateIn(
             viewModelScope,
-            WhileSubscribed(),
-            State()
+            WhileSubscribed(5_000),
+            State(),
         )
 
-    fun refresh() = telephonyStatusListener.refresh()
+    fun refresh() {
+        if (telephonyStatusListener.refresh()) {
+            vibrationHelper.tick()
+        }
+    }
 
     fun updatePermissions(granted: Boolean) {
         permissionsGrantedFlow.value = granted
-        telephonyStatusListener.recheckPermissions()
+        telephonyStatusListener.refresh()
     }
 
     data class State(
         val telephonyStatus: TelephonyStatus = TelephonyStatus.EMPTY,
-        val permissionsGranted: Boolean = false
+        val permissionsGranted: Boolean = false,
     )
 }

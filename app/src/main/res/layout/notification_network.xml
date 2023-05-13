@@ -32,7 +32,7 @@
 
     <TextView
         style="@style/TextAppearance.Compat.Notification"
-        android:text="@string/download_bandwidth" />
+        android:text="@string/download_bandwidth_short" />
     <TextView
         android:id="@+id/downloadBandwidth"
         style="@style/TextAppearance.Compat.Notification"
@@ -40,7 +40,7 @@
 
     <TextView
         style="@style/TextAppearance.Compat.Notification"
-        android:text="@string/upload_bandwidth" />
+        android:text="@string/upload_bandwidth_short" />
     <TextView
         android:id="@+id/uploadBandwidth"
         style="@style/TextAppearance.Compat.Notification"
@@ -48,7 +48,7 @@
 
     <TextView
         style="@style/TextAppearance.Compat.Notification"
-        android:text="@string/cellular_connection" />
+        android:text="@string/cellular_connection_short" />
     <TextView
         android:id="@+id/cellular"
         style="@style/TextAppearance.Compat.Notification"
@@ -56,7 +56,7 @@
 
     <TextView
         style="@style/TextAppearance.Compat.Notification"
-        android:text="@string/internet_access" />
+        android:text="@string/internet_access_short" />
     <TextView
         android:id="@+id/hasInternet"
         style="@style/TextAppearance.Compat.Notification"
@@ -65,7 +65,7 @@
     <TextView
         style="@style/TextAppearance.Compat.Notification"
         android:fontFamily="monospace"
-        android:text="@string/cap_not_metered" />
+        android:text="@string/cap_not_metered_short" />
     <TextView
         android:id="@+id/meteredness"
         style="@style/TextAppearance.Compat.Notification"
@@ -74,7 +74,7 @@
     <TextView
         style="@style/TextAppearance.Compat.Notification"
         android:fontFamily="monospace"
-        android:text="@string/cap_temp_not_metered" />
+        android:text="@string/cap_temp_not_metered_short" />
     <TextView
         android:id="@+id/tempMeteredness"
         style="@style/TextAppearance.Compat.Notification"

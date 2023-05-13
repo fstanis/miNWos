@@ -21,8 +21,8 @@ import android.net.Network
 import com.devrel.android.minwos.data.networks.ConnectivityStatus.NetworkData
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 
 class ConnectivityStatusTest {
     @Test

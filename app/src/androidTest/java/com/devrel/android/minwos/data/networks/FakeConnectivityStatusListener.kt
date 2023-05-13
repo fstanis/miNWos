@@ -30,10 +30,11 @@ class FakeConnectivityStatusListener : ConnectivityStatusListener {
                 listOf(
                     ConnectivityStatus.NetworkData(
                         0,
-                        linkProperties = LinkProperties().apply { interfaceName = "refresh" }
-                    )
-                )
-            )
+                        linkProperties = LinkProperties().apply { interfaceName = "refresh" },
+                    ),
+                ),
+            ),
         )
+        true
     }
 }

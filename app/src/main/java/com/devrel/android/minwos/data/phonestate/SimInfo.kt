@@ -24,26 +24,23 @@ data class SimInfo constructor(
     val country: String,
     val operator: String,
     val carrierId: Int = UNKNOWN_CARRIER_ID,
-    val carrierName: String? = null
+    val carrierName: String? = null,
 ) {
     companion object {
-        fun getFromTelephonyManager(manager: TelephonyManager) =
-            if (manager.simOperator.isEmpty()) {
-                null
-            } else {
+        val TelephonyManager.simInfo
+            get() =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     SimInfo(
-                        carrierId = manager.simCarrierId,
-                        carrierName = manager.simCarrierIdName?.toString(),
-                        country = manager.simCountryIso,
-                        operator = manager.simOperatorName,
+                        carrierId = simCarrierId,
+                        carrierName = simCarrierIdName?.toString(),
+                        country = simCountryIso,
+                        operator = simOperatorName,
                     )
                 } else {
                     SimInfo(
-                        country = manager.simCountryIso,
-                        operator = manager.simOperatorName,
+                        country = simCountryIso,
+                        operator = simOperatorName,
                     )
                 }
-            }
     }
 }

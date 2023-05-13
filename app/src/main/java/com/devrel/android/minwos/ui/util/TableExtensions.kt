@@ -34,7 +34,7 @@ fun TableLayout.alternateRowBackground(): TableLayout {
                 context.getColor(R.color.table_row_odd)
             } else {
                 Color.TRANSPARENT
-            }
+            },
         )
         rowIndex++
     }

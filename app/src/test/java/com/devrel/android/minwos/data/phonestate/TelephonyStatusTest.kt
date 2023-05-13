@@ -16,33 +16,32 @@
 
 package com.devrel.android.minwos.data.phonestate
 
-import android.os.Build
 import android.telephony.AccessNetworkConstants
 import android.telephony.NetworkRegistrationInfo
 import android.telephony.ServiceState
 import android.telephony.TelephonyDisplayInfo
 import android.telephony.TelephonyManager
-import com.devrel.android.minwos.TestUtil
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 
 class TelephonyStatusTest {
     private val baseTelephonyData = TelephonyStatus.TelephonyData(
-        SubscriptionInfo(1, 0), SimInfo("", "")
+        SubscriptionInfo(1, 0),
+        SimInfo("", ""),
     )
 
     @Before
     fun setUp() {
-        TestUtil.setVersionSdkInt(Build.VERSION_CODES.R)
+        // TestUtil.setVersionSdkInt(Build.VERSION_CODES.R)
     }
 
     @After
     fun tearDown() {
-        TestUtil.resetVersionSdkInt()
+        // TestUtil.resetVersionSdkInt()
     }
 
     @Test
@@ -53,7 +52,7 @@ class TelephonyStatusTest {
 
         underTest = baseTelephonyData.copy(
             networkType = TelephonyManager.NETWORK_TYPE_CDMA,
-            overrideNetworkType = TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA
+            overrideNetworkType = TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA,
         )
         assertThat(underTest.networkTypeString).isEqualTo("CDMA")
         assertThat(underTest.overrideNetworkTypeString).isEqualTo("NR_NSA")
@@ -66,7 +65,7 @@ class TelephonyStatusTest {
         assertThat(underTest.networkTypeString).isEqualTo("UNKNOWN")
         underTest = baseTelephonyData.copy(
             networkState = TelephonyManager.DATA_SUSPENDED,
-            networkType = TelephonyManager.NETWORK_TYPE_CDMA
+            networkType = TelephonyManager.NETWORK_TYPE_CDMA,
         )
         assertThat(underTest.networkStateString).isEqualTo("SUSPENDED")
         assertThat(underTest.networkTypeString).isEqualTo("CDMA")

@@ -23,17 +23,18 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class RefreshFlowTest {
     @Test
     fun `an emit is collected`() =
         runBlocking {
             withTimeout(10_000) {
-                val underTest = RefreshFlow(getElapsedTime = { 0 })
+                val underTest = RefreshFlow(500.milliseconds)
                 var collected = 0
                 val job = launch(Job()) { underTest.collect { collected++ } }
                 delay(100)
-                underTest.emit()
+                underTest.tryEmit()
                 delay(100)
                 job.cancel()
                 Truth.assertThat(collected).isEqualTo(1)
@@ -44,16 +45,16 @@ class RefreshFlowTest {
     fun `consecutive emits are ignored`() =
         runBlocking {
             withTimeout(10_000) {
-                val underTest = RefreshFlow(500, getElapsedTime = { 0 })
+                val underTest = RefreshFlow(500.milliseconds)
                 var collected = 0
                 val job = launch(Job()) { underTest.collect { collected++ } }
                 delay(100)
-                underTest.emit()
-                underTest.emit()
-                underTest.emit()
+                underTest.tryEmit()
+                underTest.tryEmit()
+                underTest.tryEmit()
                 delay(1000)
-                underTest.emit()
-                underTest.emit()
+                underTest.tryEmit()
+                underTest.tryEmit()
                 delay(100)
                 job.cancel()
                 Truth.assertThat(collected).isEqualTo(2)

@@ -20,6 +20,7 @@ import com.devrel.android.minwos.data.phonestate.SimInfo
 import com.devrel.android.minwos.data.phonestate.SubscriptionInfo
 import com.devrel.android.minwos.data.phonestate.TelephonyStatus
 import com.devrel.android.minwos.data.phonestate.TelephonyStatusListener
+import com.devrel.android.minwos.ui.util.VibrationHelper
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -33,6 +34,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
+import org.mockito.Mockito.mock
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
@@ -40,6 +42,8 @@ import org.mockito.MockitoAnnotations
 class PhoneStateViewModelTest {
     @Mock
     lateinit var telephonyListener: TelephonyStatusListener
+
+    private val vibrationHelper = mock(VibrationHelper::class.java)
 
     private val mainThreadSurrogate = newSingleThreadContext("UI thread")
 
@@ -57,7 +61,7 @@ class PhoneStateViewModelTest {
 
     @Test
     fun `refresh refreshes everything`() {
-        val underTest = PhoneStateViewModel(telephonyListener)
+        val underTest = PhoneStateViewModel(telephonyListener, vibrationHelper)
 
         underTest.refresh()
         verify(telephonyListener, times(1)).refresh()
@@ -66,16 +70,18 @@ class PhoneStateViewModelTest {
     @Test
     fun `TelephonyStatus in StateFlow`() = runBlocking {
         val flow = MutableSharedFlow<TelephonyStatus>(1)
-        val underTest = PhoneStateViewModel(object : TelephonyStatusListener {
-            override val flow get() = flow
-            override fun refresh() {}
-            override fun recheckPermissions() {}
-        })
+        val underTest = PhoneStateViewModel(
+            object : TelephonyStatusListener {
+                override val flow get() = flow
+                override fun refresh() = true
+            },
+            vibrationHelper,
+        )
 
         val status = TelephonyStatus(
             listOf(
-                TelephonyStatus.TelephonyData(SubscriptionInfo(1, 2), SimInfo("", ""))
-            )
+                TelephonyStatus.TelephonyData(SubscriptionInfo(1, 2), SimInfo("", "")),
+            ),
         )
         flow.emit(status)
 

@@ -20,20 +20,26 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.devrel.android.minwos.data.networks.ConnectivityStatus
 import com.devrel.android.minwos.data.networks.ConnectivityStatusListener
+import com.devrel.android.minwos.ui.util.VibrationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
 
 @HiltViewModel
 class NetworksViewModel @Inject constructor(
-    private val connectivityStatusListener: ConnectivityStatusListener
+    private val connectivityStatusListener: ConnectivityStatusListener,
+    private val vibrationHelper: VibrationHelper,
 ) : ViewModel() {
     val connectivityStatus = connectivityStatusListener.flow.stateIn(
         viewModelScope,
-        WhileSubscribed(),
-        ConnectivityStatus.EMPTY
+        WhileSubscribed(5_000),
+        ConnectivityStatus.EMPTY,
     )
 
-    fun refresh() = connectivityStatusListener.refresh()
+    fun refresh() {
+        if (connectivityStatusListener.refresh()) {
+            vibrationHelper.tick()
+        }
+    }
 }

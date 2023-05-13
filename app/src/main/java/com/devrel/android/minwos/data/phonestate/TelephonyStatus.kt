@@ -35,7 +35,7 @@ import androidx.recyclerview.widget.DiffUtil
 
 @SuppressLint("NewApi")
 data class TelephonyStatus(
-    val subscriptions: List<TelephonyData>
+    val subscriptions: List<TelephonyData>,
 ) {
     data class TelephonyData(
         val subscription: SubscriptionInfo,
@@ -44,7 +44,7 @@ data class TelephonyStatus(
         val overrideNetworkType: Int? = null,
         val networkState: Int = TelephonyManager.DATA_DISCONNECTED,
         val serviceState: ServiceState? = null,
-        val signalStrength: SignalStrength? = null
+        val signalStrength: SignalStrength? = null,
     ) {
         val networkTypeString
             get() = networkRegistrationInfo?.let { networkTypeToString(it.accessNetworkTechnology) }
