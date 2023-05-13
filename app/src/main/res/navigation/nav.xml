@@ -23,13 +23,13 @@
 
     <fragment
         android:id="@+id/nav_networks"
-        android:name="com.devrel.android.minwos.ui.fragments.networks.NetworksFragment"
+        android:name="me.stanis.apps.minwos.ui.fragments.networks.NetworksFragment"
         android:label="@string/title_networks"
         tools:layout="@layout/fragment_networks" />
 
     <fragment
         android:id="@+id/nav_phone_state"
-        android:name="com.devrel.android.minwos.ui.fragments.phonestate.PhoneStateFragment"
+        android:name="me.stanis.apps.minwos.ui.fragments.phonestate.PhoneStateFragment"
         android:label="@string/title_phone_state"
         tools:layout="@layout/fragment_phonestate" />
 </navigation>
