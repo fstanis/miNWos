@@ -44,7 +44,61 @@ class ConnectivityStatusListenerImpl @Inject constructor(
     private val connectivityManager: ConnectivityManager,
 ) : ConnectivityStatusListener {
     private val refreshFlow = RefreshFlow()
-    private val providerFlow = ConnectivityStatusProvider(connectivityManager).flow
+    private val providerFlow = callbackFlow {
+        var defaultNetwork: Network? = null
+        val networkMap = mutableMapOf<Network, NetworkData>()
+        val networkCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onCapabilitiesChanged(
+                network: Network,
+                networkCapabilities: NetworkCapabilities,
+            ) {
+                networkMap.updateCapabilities(network, networkCapabilities)
+                trySend(createConnectivityStatus(defaultNetwork, networkMap))
+            }
+
+            override fun onLinkPropertiesChanged(
+                network: Network,
+                linkProperties: LinkProperties,
+            ) {
+                networkMap.updateLinkProperties(network, linkProperties)
+                trySend(createConnectivityStatus(defaultNetwork, networkMap))
+            }
+
+            override fun onBlockedStatusChanged(network: Network, blocked: Boolean) {
+                networkMap.updateBlockedStatus(network, blocked)
+                trySend(createConnectivityStatus(defaultNetwork, networkMap))
+            }
+
+            override fun onLost(network: Network) {
+                networkMap.remove(network)
+                trySend(createConnectivityStatus(defaultNetwork, networkMap))
+            }
+        }
+        val defaultNetworkCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                defaultNetwork = network
+                trySend(createConnectivityStatus(defaultNetwork, networkMap))
+            }
+
+            override fun onLost(network: Network) {
+                defaultNetwork = null
+                trySend(createConnectivityStatus(defaultNetwork, networkMap))
+            }
+        }
+        connectivityManager.registerNetworkCallback(
+            NetworkRequest.Builder()
+                // these capability filters are added by default
+                .removeCapability(NetworkCapabilities.NET_CAPABILITY_TRUSTED)
+                .removeCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
+                .build(),
+            networkCallback,
+        )
+        connectivityManager.registerDefaultNetworkCallback(defaultNetworkCallback)
+        awaitClose {
+            connectivityManager.unregisterNetworkCallback(networkCallback)
+            connectivityManager.unregisterNetworkCallback(defaultNetworkCallback)
+        }
+    }
 
     override fun refresh() = refreshFlow.tryEmit()
 
@@ -69,122 +123,40 @@ class ConnectivityStatusListenerImpl @Inject constructor(
             )
         }
         val defaultNetwork = connectivityManager.activeNetwork
-        return ConnectivityStatus(networkMap[defaultNetwork], networkMap.values.toList())
+        return createConnectivityStatus(defaultNetwork, networkMap)
     }
 
-    private class ConnectivityStatusProvider(
-        connectivityManager: ConnectivityManager,
+    private fun MutableMap<Network, NetworkData>.updateCapabilities(
+        network: Network,
+        networkCapabilities: NetworkCapabilities,
     ) {
-        private var defaultNetwork = MutableStateFlow<Network?>(null)
-        private val networkMapState = MutableStateFlow(mapOf<Network, NetworkData>())
-        private val connectivityStatus
-            get() = ConnectivityStatus(
-                networkMapState.value[defaultNetwork.value],
-                networkMapState.value.values.toList(),
+        this[network] =
+            this[network]?.copy(networkCapabilities = networkCapabilities) ?: NetworkData(
+                network,
+                networkCapabilities = networkCapabilities
             )
-
-        val flow = callbackFlow {
-            val networkCallback = object : ConnectivityManager.NetworkCallback() {
-                override fun onCapabilitiesChanged(
-                    network: Network,
-                    networkCapabilities: NetworkCapabilities,
-                ) {
-                    trySend(updateCapabilities(network, networkCapabilities))
-                }
-
-                override fun onLinkPropertiesChanged(
-                    network: Network,
-                    linkProperties: LinkProperties,
-                ) {
-                    trySend(updateLinkProperties(network, linkProperties))
-                }
-
-                override fun onBlockedStatusChanged(network: Network, blocked: Boolean) {
-                    trySend(updateBlockedStatus(network, blocked))
-                }
-
-                override fun onLost(network: Network) {
-                    trySend(removeNetwork(network))
-                }
-            }
-            val defaultNetworkCallback = object : ConnectivityManager.NetworkCallback() {
-                override fun onAvailable(network: Network) {
-                    trySend(setNetworkDefault(network))
-                }
-
-                override fun onLost(network: Network) {
-                    trySend(unsetNetworkDefault())
-                }
-            }
-            connectivityManager.registerNetworkCallback(
-                NetworkRequest.Builder()
-                    // these capability filters are added by default
-                    .removeCapability(NetworkCapabilities.NET_CAPABILITY_TRUSTED)
-                    .removeCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
-                    .build(),
-                networkCallback,
-            )
-            connectivityManager.registerDefaultNetworkCallback(defaultNetworkCallback)
-            awaitClose {
-                connectivityManager.unregisterNetworkCallback(networkCallback)
-                connectivityManager.unregisterNetworkCallback(defaultNetworkCallback)
-            }
-        }
-
-        private fun updateCapabilities(
-            network: Network,
-            networkCapabilities: NetworkCapabilities,
-        ): ConnectivityStatus {
-            networkMapState.update { networkMap ->
-                val networkMapMutable = networkMap.toMutableMap()
-                networkMapMutable[network] =
-                    networkMap[network]?.copy(networkCapabilities = networkCapabilities)
-                        ?: NetworkData(network, networkCapabilities = networkCapabilities)
-                networkMapMutable
-            }
-            return connectivityStatus
-        }
-
-        private fun updateLinkProperties(
-            network: Network,
-            linkProperties: LinkProperties,
-        ): ConnectivityStatus {
-            networkMapState.update { networkMap ->
-                val networkMapMutable = networkMap.toMutableMap()
-                networkMapMutable[network] =
-                    networkMap[network]?.copy(linkProperties = linkProperties)
-                        ?: NetworkData(network, linkProperties = linkProperties)
-                networkMapMutable
-            }
-            return connectivityStatus
-        }
-
-        private fun updateBlockedStatus(network: Network, blocked: Boolean): ConnectivityStatus {
-            networkMapState.update { networkMap ->
-                val networkMapMutable = networkMap.toMutableMap()
-                networkMapMutable[network] =
-                    networkMap[network]?.copy(isBlocked = blocked)
-                        ?: NetworkData(network, isBlocked = blocked)
-                networkMapMutable
-            }
-            return connectivityStatus
-        }
-
-        private fun removeNetwork(network: Network): ConnectivityStatus {
-            networkMapState.update { networkMap ->
-                networkMap.toMutableMap().also { it.remove(network) }
-            }
-            return connectivityStatus
-        }
-
-        private fun setNetworkDefault(network: Network): ConnectivityStatus {
-            defaultNetwork.value = network
-            return connectivityStatus
-        }
-
-        private fun unsetNetworkDefault(): ConnectivityStatus {
-            defaultNetwork.value = null
-            return connectivityStatus
-        }
     }
+
+    private fun MutableMap<Network, NetworkData>.updateLinkProperties(
+        network: Network,
+        linkProperties: LinkProperties,
+    ) {
+        this[network] = this[network]?.copy(linkProperties = linkProperties) ?: NetworkData(
+            network,
+            linkProperties = linkProperties
+        )
+    }
+
+    private fun MutableMap<Network, NetworkData>.updateBlockedStatus(
+        network: Network,
+        blocked: Boolean
+    ) {
+        this[network] =
+            this[network]?.copy(isBlocked = blocked) ?: NetworkData(network, isBlocked = blocked)
+    }
+
+    private fun createConnectivityStatus(
+        defaultNetwork: Network?,
+        networkMap: Map<Network, NetworkData>
+    ) = ConnectivityStatus(networkMap[defaultNetwork], networkMap.values.toList())
 }

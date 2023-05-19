@@ -42,7 +42,7 @@ class RefreshFlow(private val throttlePeriod: Duration = DEFAULT_THROTTLE_PERIOD
 }
 
 /**
- * Drops emissions collected within [periodMillis] after the last emission.
+ * Drops emissions collected within [period] after the last emission.
  */
 fun <T> Flow<T>.throttle(period: Duration): Flow<T> = flow {
     var lastTime = 0L

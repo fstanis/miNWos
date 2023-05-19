@@ -38,7 +38,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -46,9 +45,9 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.withContext
 import java.util.concurrent.Executor
+import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 
 const val IS_DISPLAY_INFO_SUPPORTED = true
@@ -147,6 +146,7 @@ class TelephonyStatusListenerImpl @Inject constructor(
 
         val flow = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             callbackFlow {
+                var dataState = getInitialTelephonyData(subscriptionId)
                 val callback = object :
                     TelephonyCallback(),
                     TelephonyCallback.DataConnectionStateListener,
@@ -154,19 +154,23 @@ class TelephonyStatusListenerImpl @Inject constructor(
                     TelephonyCallback.SignalStrengthsListener,
                     TelephonyCallback.DisplayInfoListener {
                     override fun onDataConnectionStateChanged(state: Int, networkType: Int) {
-                        trySend(updateDataConnectionState(state, networkType))
+                        dataState = dataState.updateDataConnectionState(state, networkType)
+                        trySend(dataState)
                     }
 
                     override fun onServiceStateChanged(serviceState: ServiceState) {
-                        trySend(updateServiceState(serviceState))
+                        dataState = dataState.updateServiceState(serviceState)
+                        trySend(dataState)
                     }
 
                     override fun onSignalStrengthsChanged(signalStrength: SignalStrength) {
-                        trySend(updateSignalStrengths(signalStrength))
+                        dataState = dataState.updateSignalStrengths(signalStrength)
+                        trySend(dataState)
                     }
 
                     override fun onDisplayInfoChanged(telephonyDisplayInfo: TelephonyDisplayInfo) {
-                        trySend(updateDisplayInfo(telephonyDisplayInfo))
+                        dataState = dataState.updateDisplayInfo(telephonyDisplayInfo)
+                        trySend(dataState)
                     }
                 }
                 subTelephonyManager.registerTelephonyCallback(executor, callback)
@@ -176,24 +180,29 @@ class TelephonyStatusListenerImpl @Inject constructor(
             }
         } else {
             callbackFlow {
+                var dataState = getInitialTelephonyData(subscriptionId)
                 val listener = withContext(dispatcher) {
                     object : PhoneStateListener() {
                         override fun onDataConnectionStateChanged(state: Int, networkType: Int) {
-                            trySend(updateDataConnectionState(state, networkType))
+                            dataState = dataState.updateDataConnectionState(state, networkType)
+                            trySend(dataState)
                         }
 
                         override fun onServiceStateChanged(serviceState: ServiceState) {
-                            trySend(updateServiceState(serviceState))
+                            dataState = dataState.updateServiceState(serviceState)
+                            trySend(dataState)
                         }
 
                         override fun onSignalStrengthsChanged(signalStrength: SignalStrength) {
-                            trySend(updateSignalStrengths(signalStrength))
+                            dataState = dataState.updateSignalStrengths(signalStrength)
+                            trySend(dataState)
                         }
 
                         override fun onDisplayInfoChanged(
                             telephonyDisplayInfo: TelephonyDisplayInfo,
                         ) {
-                            trySend(updateDisplayInfo(telephonyDisplayInfo))
+                            dataState = dataState.updateDisplayInfo(telephonyDisplayInfo)
+                            trySend(dataState)
                         }
                     }
                 }
@@ -210,45 +219,41 @@ class TelephonyStatusListenerImpl @Inject constructor(
             }
         }
 
-        private val dataState = MutableStateFlow(
-            TelephonyStatus.TelephonyData(
-                SubscriptionInfo.forId(subscriptionId),
-                subTelephonyManager.simInfo,
-            ),
+        private fun TelephonyStatus.TelephonyData.updateDataConnectionState(
+            state: Int,
+            networkType: Int
+        ) = copy(
+            networkState = state,
+            networkType = networkType,
         )
 
-        private fun updateDataConnectionState(state: Int, networkType: Int) =
-            dataState.updateAndGet {
-                it.copy(
-                    networkState = state,
-                    networkType = networkType,
+        private fun TelephonyStatus.TelephonyData.updateServiceState(serviceState: ServiceState) =
+            copy(
+                serviceState = serviceState,
+            )
+
+
+        private fun TelephonyStatus.TelephonyData.updateSignalStrengths(
+            signalStrength: SignalStrength
+        ) = copy(
+            signalStrength = signalStrength,
+        )
+
+        private fun TelephonyStatus.TelephonyData.updateDisplayInfo(
+            telephonyDisplayInfo: TelephonyDisplayInfo
+        ) =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                copy(
+                    networkType = telephonyDisplayInfo.networkType,
+                    overrideNetworkType = telephonyDisplayInfo.overrideNetworkType,
                 )
+            } else {
+                this
             }
 
-        private fun updateServiceState(serviceState: ServiceState) =
-            dataState.updateAndGet {
-                it.copy(
-                    serviceState = serviceState,
-                )
-            }
-
-        private fun updateSignalStrengths(signalStrength: SignalStrength) =
-            dataState.updateAndGet {
-                it.copy(
-                    signalStrength = signalStrength,
-                )
-            }
-
-        private fun updateDisplayInfo(telephonyDisplayInfo: TelephonyDisplayInfo) =
-            dataState.updateAndGet {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    it.copy(
-                        networkType = telephonyDisplayInfo.networkType,
-                        overrideNetworkType = telephonyDisplayInfo.overrideNetworkType,
-                    )
-                } else {
-                    it
-                }
-            }
+        private fun getInitialTelephonyData(subscriptionId: Int) = TelephonyStatus.TelephonyData(
+            SubscriptionInfo.forId(subscriptionId),
+            subTelephonyManager.simInfo,
+        )
     }
 }
