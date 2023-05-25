@@ -50,7 +50,7 @@ import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 
-const val IS_DISPLAY_INFO_SUPPORTED = true
+val IS_DISPLAY_INFO_SUPPORTED = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q
 
 interface TelephonyStatusListener {
     val flow: Flow<TelephonyStatus>

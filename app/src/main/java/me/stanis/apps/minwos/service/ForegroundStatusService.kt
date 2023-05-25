@@ -74,7 +74,7 @@ class ForegroundStatusService : LifecycleService() {
 
     private fun stopForegroundService() {
         started = false
-        stopForeground(true)
+        stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
 

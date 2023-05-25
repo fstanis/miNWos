@@ -27,6 +27,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -59,7 +60,15 @@ class PhoneStateFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        setHasOptionsMenu(true)
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menu.clear()
+                menuInflater.inflate(R.menu.action_menu_phonestate, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+                this@PhoneStateFragment.onMenuItemSelected(menuItem)
+        }, viewLifecycleOwner)
         binding = FragmentPhonestateBinding.inflate(inflater)
         return binding.root
     }
@@ -111,9 +120,8 @@ class PhoneStateFragment : Fragment() {
         helpDialog.show()
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onOptionsItemSelected(item: MenuItem) =
-        when (item.itemId) {
+    private fun onMenuItemSelected(menuItem: MenuItem) =
+        when (menuItem.itemId) {
             R.id.action_help -> {
                 showHelp()
                 true
@@ -126,11 +134,4 @@ class PhoneStateFragment : Fragment() {
 
             else -> false
         }
-
-    @Deprecated("Deprecated in Java")
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        menu.clear()
-        inflater.inflate(R.menu.action_menu_phonestate, menu)
-    }
 }
