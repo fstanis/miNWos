@@ -20,12 +20,12 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import dagger.hilt.android.AndroidEntryPoint
 import me.stanis.apps.minwos.BuildConfig
 import me.stanis.apps.minwos.R
 import me.stanis.apps.minwos.data.networks.ConnectivityStatusListener
 import me.stanis.apps.minwos.data.phonestate.TelephonyStatusListener
 import me.stanis.apps.minwos.databinding.ActivityMainBinding
-import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint

@@ -18,8 +18,8 @@ package me.stanis.apps.minwos.data.networks
 
 import android.net.LinkProperties
 import android.net.Network
-import me.stanis.apps.minwos.data.networks.ConnectivityStatus.NetworkData
 import com.google.common.truth.Truth.assertThat
+import me.stanis.apps.minwos.data.networks.ConnectivityStatus.NetworkData
 import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`

@@ -31,8 +31,6 @@ import android.telephony.TelephonyDisplayInfo
 import android.telephony.TelephonyManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import me.stanis.apps.minwos.data.phonestate.SimInfo.Companion.simInfo
-import me.stanis.apps.minwos.data.util.RefreshFlow
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -46,8 +44,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.withContext
+import me.stanis.apps.minwos.data.phonestate.SimInfo.Companion.simInfo
+import me.stanis.apps.minwos.data.util.RefreshFlow
 import java.util.concurrent.Executor
-import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 
 val IS_DISPLAY_INFO_SUPPORTED = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q
@@ -221,7 +220,7 @@ class TelephonyStatusListenerImpl @Inject constructor(
 
         private fun TelephonyStatus.TelephonyData.updateDataConnectionState(
             state: Int,
-            networkType: Int
+            networkType: Int,
         ) = copy(
             networkState = state,
             networkType = networkType,
@@ -232,15 +231,14 @@ class TelephonyStatusListenerImpl @Inject constructor(
                 serviceState = serviceState,
             )
 
-
         private fun TelephonyStatus.TelephonyData.updateSignalStrengths(
-            signalStrength: SignalStrength
+            signalStrength: SignalStrength,
         ) = copy(
             signalStrength = signalStrength,
         )
 
         private fun TelephonyStatus.TelephonyData.updateDisplayInfo(
-            telephonyDisplayInfo: TelephonyDisplayInfo
+            telephonyDisplayInfo: TelephonyDisplayInfo,
         ) =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 copy(

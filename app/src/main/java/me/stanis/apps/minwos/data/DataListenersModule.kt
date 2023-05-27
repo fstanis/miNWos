@@ -16,16 +16,16 @@
 
 package me.stanis.apps.minwos.data
 
-import me.stanis.apps.minwos.data.networks.ConnectivityStatusListener
-import me.stanis.apps.minwos.data.networks.ConnectivityStatusListenerImpl
-import me.stanis.apps.minwos.data.phonestate.TelephonyStatusListener
-import me.stanis.apps.minwos.data.phonestate.TelephonyStatusListenerImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
 import dagger.hilt.android.components.ServiceComponent
 import dagger.hilt.android.scopes.ActivityRetainedScoped
+import me.stanis.apps.minwos.data.networks.ConnectivityStatusListener
+import me.stanis.apps.minwos.data.networks.ConnectivityStatusListenerImpl
+import me.stanis.apps.minwos.data.phonestate.TelephonyStatusListener
+import me.stanis.apps.minwos.data.phonestate.TelephonyStatusListenerImpl
 
 @Module
 @InstallIn(ActivityRetainedComponent::class)

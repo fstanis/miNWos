@@ -37,12 +37,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import me.stanis.apps.minwos.R
 import me.stanis.apps.minwos.databinding.FragmentNetworksBinding
 import me.stanis.apps.minwos.service.ForegroundStatusService
 import me.stanis.apps.minwos.ui.help.HelpDialog
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class NetworksFragment : Fragment() {
@@ -63,15 +63,18 @@ class NetworksFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        requireActivity().addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menu.clear()
-                menuInflater.inflate(R.menu.action_menu_networks, menu)
-            }
+        requireActivity().addMenuProvider(
+            object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menu.clear()
+                    menuInflater.inflate(R.menu.action_menu_networks, menu)
+                }
 
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
-                this@NetworksFragment.onMenuItemSelected(menuItem)
-        }, viewLifecycleOwner)
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+                    this@NetworksFragment.onMenuItemSelected(menuItem)
+            },
+            viewLifecycleOwner,
+        )
         binding = FragmentNetworksBinding.inflate(inflater)
         return binding.root
     }

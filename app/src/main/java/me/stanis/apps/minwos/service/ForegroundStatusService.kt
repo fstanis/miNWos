@@ -23,13 +23,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import me.stanis.apps.minwos.data.networks.ConnectivityStatus
-import me.stanis.apps.minwos.data.networks.ConnectivityStatusListener
-import me.stanis.apps.minwos.ui.notification.NetworkNotificationFactory
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import me.stanis.apps.minwos.data.networks.ConnectivityStatus
+import me.stanis.apps.minwos.data.networks.ConnectivityStatusListener
+import me.stanis.apps.minwos.ui.notification.NetworkNotificationFactory
 import javax.inject.Inject
 
 @AndroidEntryPoint

@@ -23,12 +23,12 @@ import android.app.PendingIntent
 import android.content.Context
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
+import dagger.hilt.android.qualifiers.ApplicationContext
 import me.stanis.apps.minwos.R
 import me.stanis.apps.minwos.data.networks.ConnectivityStatus
 import me.stanis.apps.minwos.service.ForegroundStatusService
 import me.stanis.apps.minwos.ui.util.formatBandwidth
 import me.stanis.apps.minwos.ui.util.formatBoolean
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 class NetworkNotificationFactory @Inject constructor(

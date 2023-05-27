@@ -21,17 +21,15 @@ import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
-import me.stanis.apps.minwos.data.networks.ConnectivityStatus.NetworkData
-import me.stanis.apps.minwos.data.util.RefreshFlow
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.update
+import me.stanis.apps.minwos.data.networks.ConnectivityStatus.NetworkData
+import me.stanis.apps.minwos.data.util.RefreshFlow
 import javax.inject.Inject
 
 interface ConnectivityStatusListener {
@@ -45,8 +43,8 @@ class ConnectivityStatusListenerImpl @Inject constructor(
 ) : ConnectivityStatusListener {
     private val refreshFlow = RefreshFlow()
     private val providerFlow = callbackFlow {
-        var defaultNetwork: Network? = null
-        val networkMap = mutableMapOf<Network, NetworkData>()
+        var defaultNetwork: Long? = null
+        val networkMap = mutableMapOf<Long, NetworkData>()
         val networkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onCapabilitiesChanged(
                 network: Network,
@@ -70,13 +68,13 @@ class ConnectivityStatusListenerImpl @Inject constructor(
             }
 
             override fun onLost(network: Network) {
-                networkMap.remove(network)
+                networkMap.remove(network.networkHandle)
                 trySend(createConnectivityStatus(defaultNetwork, networkMap))
             }
         }
         val defaultNetworkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
-                defaultNetwork = network
+                defaultNetwork = network.networkHandle
                 trySend(createConnectivityStatus(defaultNetwork, networkMap))
             }
 
@@ -106,7 +104,7 @@ class ConnectivityStatusListenerImpl @Inject constructor(
         merge(providerFlow, refreshFlow.map { getConnectivityStatus() }).distinctUntilChanged()
 
     private fun getConnectivityStatus(): ConnectivityStatus {
-        val networkMap = mutableMapOf<Network, NetworkData>()
+        val networkMap = mutableMapOf<Long, NetworkData>()
         for (network in connectivityManager.allNetworks) {
             connectivityManager.requestBandwidthUpdate(network)
             val capabilities = connectivityManager.getNetworkCapabilities(network) ?: continue
@@ -116,47 +114,52 @@ class ConnectivityStatusListenerImpl @Inject constructor(
             ) {
                 continue
             }
-            networkMap[network] = NetworkData(
+            networkMap[network.networkHandle] = NetworkData(
                 network,
                 networkCapabilities = capabilities,
                 linkProperties = connectivityManager.getLinkProperties(network),
             )
         }
-        val defaultNetwork = connectivityManager.activeNetwork
+        val defaultNetwork = connectivityManager.activeNetwork?.networkHandle
         return createConnectivityStatus(defaultNetwork, networkMap)
     }
 
-    private fun MutableMap<Network, NetworkData>.updateCapabilities(
+    private fun MutableMap<Long, NetworkData>.updateCapabilities(
         network: Network,
         networkCapabilities: NetworkCapabilities,
     ) {
-        this[network] =
-            this[network]?.copy(networkCapabilities = networkCapabilities) ?: NetworkData(
-                network,
-                networkCapabilities = networkCapabilities
-            )
+        this[network.networkHandle] =
+            this[network.networkHandle]?.copy(networkCapabilities = networkCapabilities)
+                ?: NetworkData(
+                    network,
+                    networkCapabilities = networkCapabilities,
+                )
     }
 
-    private fun MutableMap<Network, NetworkData>.updateLinkProperties(
+    private fun MutableMap<Long, NetworkData>.updateLinkProperties(
         network: Network,
         linkProperties: LinkProperties,
     ) {
-        this[network] = this[network]?.copy(linkProperties = linkProperties) ?: NetworkData(
-            network,
-            linkProperties = linkProperties
-        )
+        this[network.networkHandle] =
+            this[network.networkHandle]?.copy(linkProperties = linkProperties) ?: NetworkData(
+                network,
+                linkProperties = linkProperties,
+            )
     }
 
-    private fun MutableMap<Network, NetworkData>.updateBlockedStatus(
+    private fun MutableMap<Long, NetworkData>.updateBlockedStatus(
         network: Network,
-        blocked: Boolean
+        blocked: Boolean,
     ) {
-        this[network] =
-            this[network]?.copy(isBlocked = blocked) ?: NetworkData(network, isBlocked = blocked)
+        this[network.networkHandle] =
+            this[network.networkHandle]?.copy(isBlocked = blocked) ?: NetworkData(
+                network,
+                isBlocked = blocked,
+            )
     }
 
     private fun createConnectivityStatus(
-        defaultNetwork: Network?,
-        networkMap: Map<Network, NetworkData>
+        defaultNetwork: Long?,
+        networkMap: Map<Long, NetworkData>,
     ) = ConnectivityStatus(networkMap[defaultNetwork], networkMap.values.toList())
 }

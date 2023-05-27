@@ -31,11 +31,11 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
-import me.stanis.apps.minwos.R
-import me.stanis.apps.minwos.ui.MainActivity
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import me.stanis.apps.minwos.R
+import me.stanis.apps.minwos.ui.MainActivity
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

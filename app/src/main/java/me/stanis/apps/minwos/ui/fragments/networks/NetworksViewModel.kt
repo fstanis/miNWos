@@ -18,12 +18,12 @@ package me.stanis.apps.minwos.ui.fragments.networks
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import me.stanis.apps.minwos.data.networks.ConnectivityStatus
-import me.stanis.apps.minwos.data.networks.ConnectivityStatusListener
-import me.stanis.apps.minwos.ui.util.VibrationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.stateIn
+import me.stanis.apps.minwos.data.networks.ConnectivityStatus
+import me.stanis.apps.minwos.data.networks.ConnectivityStatusListener
+import me.stanis.apps.minwos.ui.util.VibrationHelper
 import javax.inject.Inject
 
 @HiltViewModel

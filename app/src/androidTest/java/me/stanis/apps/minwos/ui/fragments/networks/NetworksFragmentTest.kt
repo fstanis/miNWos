@@ -28,6 +28,12 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import dagger.hilt.android.testing.BindValue
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.runBlocking
 import me.stanis.apps.minwos.R
 import me.stanis.apps.minwos.data.DataListenersActivityModule
 import me.stanis.apps.minwos.data.DataListenersServiceModule
@@ -38,12 +44,6 @@ import me.stanis.apps.minwos.data.networks.FakeConnectivityStatusListener
 import me.stanis.apps.minwos.data.phonestate.FakeTelephonyStatusListener
 import me.stanis.apps.minwos.data.phonestate.TelephonyStatusListener
 import me.stanis.apps.minwos.ui.MainActivity
-import dagger.hilt.android.testing.BindValue
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.UninstallModules
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.allOf
 import org.junit.Before
 import org.junit.Rule

@@ -16,9 +16,6 @@
 
 package me.stanis.apps.minwos.ui.fragments.networks
 
-import me.stanis.apps.minwos.data.networks.ConnectivityStatus
-import me.stanis.apps.minwos.data.networks.ConnectivityStatusListener
-import me.stanis.apps.minwos.ui.util.VibrationHelper
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -28,6 +25,9 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.withTimeoutOrNull
+import me.stanis.apps.minwos.data.networks.ConnectivityStatus
+import me.stanis.apps.minwos.data.networks.ConnectivityStatusListener
+import me.stanis.apps.minwos.ui.util.VibrationHelper
 import org.junit.After
 import org.junit.Before
 import org.junit.Test

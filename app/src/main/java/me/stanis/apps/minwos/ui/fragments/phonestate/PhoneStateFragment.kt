@@ -34,12 +34,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import me.stanis.apps.minwos.R
 import me.stanis.apps.minwos.data.phonestate.IS_DISPLAY_INFO_SUPPORTED
 import me.stanis.apps.minwos.databinding.FragmentPhonestateBinding
 import me.stanis.apps.minwos.ui.help.HelpDialog
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PhoneStateFragment : Fragment() {
@@ -60,15 +60,18 @@ class PhoneStateFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        requireActivity().addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menu.clear()
-                menuInflater.inflate(R.menu.action_menu_phonestate, menu)
-            }
+        requireActivity().addMenuProvider(
+            object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menu.clear()
+                    menuInflater.inflate(R.menu.action_menu_phonestate, menu)
+                }
 
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
-                this@PhoneStateFragment.onMenuItemSelected(menuItem)
-        }, viewLifecycleOwner)
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+                    this@PhoneStateFragment.onMenuItemSelected(menuItem)
+            },
+            viewLifecycleOwner,
+        )
         binding = FragmentPhonestateBinding.inflate(inflater)
         return binding.root
     }
